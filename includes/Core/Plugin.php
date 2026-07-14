@@ -98,6 +98,31 @@ final class Plugin {
 			)
 		);
 
+		$this->container->set(
+			'logger_service',
+			static fn () => new \WCMCS\Services\LoggerService()
+		);
+
+		$this->container->set(
+			'rate_repository',
+			static fn () => new \WCMCS\Services\ExchangeRate\RateRepository()
+		);
+
+		$this->container->set(
+			'provider_registry',
+			static fn ( Container $c ) => new \WCMCS\Services\ExchangeRate\ProviderRegistry(
+				$c->get( 'logger_service' )
+			)
+		);
+
+		$this->container->set(
+			'rate_provider_chain',
+			static fn ( Container $c ) => new \WCMCS\Services\ExchangeRate\RateProviderChain(
+				$c->get( 'provider_registry' )->buildOrderedProviders(),
+				$c->get( 'logger_service' )
+			)
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 	}
 
