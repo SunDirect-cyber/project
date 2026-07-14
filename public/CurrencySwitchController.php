@@ -39,9 +39,9 @@ class CurrencySwitchController {
 			wp_send_json_error( array( 'message' => __( 'That currency is not available.', 'wc-multicurrency-switcher' ) ) );
 		}
 
-		/** @var SessionService $session */
-		$session = Plugin::instance()->container()->get( 'session_service' );
-		$session->setCurrency( $requested, SessionService::SOURCE_MANUAL );
+		/** @var \WCMCS\Services\CurrencyPersistenceService $persistence */
+		$persistence = Plugin::instance()->container()->get( 'currency_persistence_service' );
+		$persistence->setCurrency( $requested, SessionService::SOURCE_MANUAL );
 
 		do_action( 'wcmcs_currency_switched', $requested, SessionService::SOURCE_MANUAL );
 

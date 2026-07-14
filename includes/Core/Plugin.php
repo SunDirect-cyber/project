@@ -192,10 +192,17 @@ final class Plugin {
 		);
 
 		$this->container->set(
+			'currency_persistence_service',
+			static fn ( Container $c ) => new \WCMCS\Services\CurrencyPersistenceService(
+				$c->get( 'session_service' )
+			)
+		);
+
+		$this->container->set(
 			'currency_switcher_renderer',
 			static fn ( Container $c ) => new \WCMCS\Frontend\CurrencySwitcherRenderer(
 				$c->get( 'currency_service' ),
-				$c->get( 'session_service' )
+				$c->get( 'currency_persistence_service' )
 			)
 		);
 
@@ -212,6 +219,19 @@ final class Plugin {
 		\WCMCS\Frontend\Block::register();
 		\WCMCS\Frontend\CurrencySwitchController::register();
 		\WCMCS\Frontend\FrontendHooks::register();
+		\WCMCS\Frontend\UrlCurrencyOverride::register();
+		\WCMCS\Frontend\PriceDisplayHooks::register();
+		\WCMCS\Frontend\OrderCurrencyRecorder::register();
+
+		$container = $this->container;
+		add_action(
+			'wp_login',
+			static function ( string $user_login, \WP_User $user ) use ( $container ) {
+				$container->get( 'currency_persistence_service' )->migrateGuestSessionToUser( (int) $user->ID );
+			},
+			10,
+			2
+		);
 	}
 
 	private function load_textdomain(): void {

@@ -1,8 +1,8 @@
 <?php
 namespace WCMCS\Frontend;
 
+use WCMCS\Services\CurrencyPersistenceService;
 use WCMCS\Services\CurrencyService;
-use WCMCS\Services\SessionService;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -27,11 +27,11 @@ class CurrencySwitcherRenderer {
 	private static bool $assetsNeeded = false;
 
 	private CurrencyService $currencyService;
-	private SessionService $sessionService;
+	private CurrencyPersistenceService $persistenceService;
 
-	public function __construct( CurrencyService $currencyService, SessionService $sessionService ) {
-		$this->currencyService = $currencyService;
-		$this->sessionService   = $sessionService;
+	public function __construct( CurrencyService $currencyService, CurrencyPersistenceService $persistenceService ) {
+		$this->currencyService     = $currencyService;
+		$this->persistenceService  = $persistenceService;
 	}
 
 	public static function assetsNeeded(): bool {
@@ -62,7 +62,7 @@ class CurrencySwitcherRenderer {
 			return '';
 		}
 
-		$currentCode = strtoupper( (string) ( $this->sessionService->getCurrency() ?? $this->currencyService->baseCurrency()->code() ) );
+		$currentCode = strtoupper( (string) ( $this->persistenceService->getCurrency() ?? $this->currencyService->baseCurrency()->code() ) );
 
 		self::$assetsNeeded = true;
 
