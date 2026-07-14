@@ -14,6 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Deactivator {
 
 	public static function deactivate(): void {
-		wp_clear_scheduled_hook( 'wcmcs_refresh_exchange_rates' );
+		Cron::unschedule();
 	}
 }

@@ -123,7 +123,35 @@ final class Plugin {
 			)
 		);
 
+		$this->container->set(
+			'cache_service',
+			static fn () => new \WCMCS\Services\CacheService()
+		);
+
+		$this->container->set(
+			'session_service',
+			static fn () => new \WCMCS\Services\SessionService()
+		);
+
+		$this->container->set(
+			'rate_service',
+			static fn ( Container $c ) => new \WCMCS\Services\ExchangeRate\RateService(
+				$c->get( 'rate_provider_chain' ),
+				$c->get( 'rate_repository' ),
+				$c->get( 'cache_service' )
+			)
+		);
+
+		$this->container->set(
+			'rate_failure_monitor',
+			static fn () => new RateFailureMonitor()
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
+
+		Cron::register();
+
+		\WCMCS\Admin\RateAjaxController::register();
 	}
 
 	private function load_textdomain(): void {

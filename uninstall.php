@@ -11,6 +11,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 require_once __DIR__ . '/includes/Core/Installer.php';
+require_once __DIR__ . '/includes/Core/Cron.php';
 
 function wcmcs_uninstall_single_site(): void {
 	global $wpdb;
@@ -18,8 +19,24 @@ function wcmcs_uninstall_single_site(): void {
 	\WCMCS\Core\Installer::drop_tables();
 
 	// Options.
-	delete_option( 'wcmcs_settings' );
-	delete_option( 'wcmcs_db_version' );
+	$options = array(
+		'wcmcs_settings',
+		'wcmcs_db_version',
+		'wcmcs_manual_rates',
+		'wcmcs_provider_priority',
+		'wcmcs_provider_exchangerateapi_key',
+		'wcmcs_provider_openexchangerates_key',
+		'wcmcs_provider_fixer_key',
+		'wcmcs_rate_refresh_interval',
+		'wcmcs_enabled_currencies',
+		'wcmcs_last_rate_success_at',
+		'wcmcs_rate_alert_sent',
+		'wcmcs_rate_alert_threshold_hours',
+	);
+
+	foreach ( $options as $option ) {
+		delete_option( $option );
+	}
 
 	// Transients (including their timeout siblings).
 	$wpdb->query(
@@ -27,7 +44,7 @@ function wcmcs_uninstall_single_site(): void {
 	);
 
 	// Cron.
-	wp_clear_scheduled_hook( 'wcmcs_refresh_exchange_rates' );
+	\WCMCS\Core\Cron::unschedule();
 }
 
 if ( is_multisite() ) {

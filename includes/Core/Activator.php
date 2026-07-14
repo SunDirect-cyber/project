@@ -77,9 +77,7 @@ class Activator {
 	}
 
 	private static function schedule_cron_events(): void {
-		if ( ! wp_next_scheduled( 'wcmcs_refresh_exchange_rates' ) ) {
-			wp_schedule_event( time(), 'hourly', 'wcmcs_refresh_exchange_rates' );
-		}
+		Cron::schedule();
 	}
 
 	/**
