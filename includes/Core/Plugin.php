@@ -51,7 +51,15 @@ final class Plugin {
 		}
 		$this->has_run = true;
 
-		if ( ! $this->dependencies_met() ) {
+		// Registered unconditionally: this is what notices the site owner
+		// and self-deactivates gracefully if a requirement stops being met
+		// (e.g. WooCommerce gets deactivated later), instead of letting
+		// missing WooCommerce classes cause a fatal error further down.
+		Compatibility::register();
+
+		Installer::run_if_needed();
+
+		if ( ! Requirements::are_met() ) {
 			return;
 		}
 
@@ -59,15 +67,6 @@ final class Plugin {
 		$this->load_textdomain();
 
 		do_action( 'wcmcs_loaded', $this );
-	}
-
-	/**
-	 * Checks that WooCommerce is active. WordPress and PHP minimum
-	 * versions are already enforced by the plugin header, so this only
-	 * needs to re-check WooCommerce, which WordPress cannot check itself.
-	 */
-	private function dependencies_met(): bool {
-		return class_exists( 'WooCommerce' );
 	}
 
 	/**
