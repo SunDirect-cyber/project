@@ -241,6 +241,8 @@ final class Plugin {
 		\WCMCS\Frontend\OrderCurrencyRecorder::register();
 		\WCMCS\Frontend\GeoSuggestionController::register();
 
+		MultilingualCompat::register();
+
 		$container = $this->container;
 
 		// Priority 20: after UrlCurrencyOverride's default-priority (10)
