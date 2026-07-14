@@ -75,6 +75,11 @@ final class Plugin {
 	 * service the first time something actually asks for it.
 	 */
 	private function register_services(): void {
+		$this->container->set(
+			'order_repository',
+			static fn () => new \WCMCS\Services\OrderRepository()
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 	}
 

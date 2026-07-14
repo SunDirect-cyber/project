@@ -33,6 +33,11 @@ if ( file_exists( WCMCS_PATH . 'vendor/autoload.php' ) ) {
 	( new \WCMCS\Core\Autoloader() )->register();
 }
 
+// Must be registered now, not inside plugins_loaded — WooCommerce reads
+// the feature compatibility list on 'before_woocommerce_init', which can
+// fire before our own 'plugins_loaded' callback runs.
+\WCMCS\Core\Hpos::register();
+
 /**
  * Boots the plugin once all plugins are loaded, so we can safely check
  * whether WooCommerce is active before touching any WooCommerce classes.
