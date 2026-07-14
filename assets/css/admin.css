@@ -1,0 +1,22 @@
+.wcmcs-exchange-rates .wcmcs-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 16px 0;
+}
+
+.wcmcs-exchange-rates .wcmcs-status {
+	color: #646970;
+	font-style: italic;
+}
+
+.wcmcs-exchange-rates #wcmcs-rate-chart {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	max-width: 100%;
+	height: auto;
+}
+
+.wcmcs-exchange-rates #wcmcs-history-table {
+	margin-top: 16px;
+}

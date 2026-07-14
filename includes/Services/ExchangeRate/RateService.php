@@ -124,6 +124,40 @@ class RateService {
 	}
 
 	/**
+	 * Reverts a currency pair to a previous value from its own history —
+	 * e.g. after a bad API response corrupted the current rate. Rather
+	 * than deleting the bad row(s), this appends a new history entry
+	 * carrying the old rate forward, tagged with source "rollback", so
+	 * the audit trail still shows exactly what happened and when. Also
+	 * evicts the cached rate for that pair so the reverted value takes
+	 * effect immediately instead of waiting out the cache TTL.
+	 *
+	 * @return float|null The restored rate, or null if $historyId doesn't exist.
+	 */
+	public function rollbackTo( int $historyId ): ?float {
+		$row = $this->repository->findById( $historyId );
+
+		if ( null === $row ) {
+			return null;
+		}
+
+		$base   = $row['base_currency'];
+		$target = $row['target_currency'];
+
+		$this->repository->store( $base, $target, $row['rate'], 'rollback' );
+		$this->cache->delete( "rate_{$base}_{$target}" );
+
+		return $row['rate'];
+	}
+
+	/**
+	 * @return array{id: int, rate: float, source: string, created_at: string}[]
+	 */
+	public function getHistory( string $base, string $target, int $limit = 30 ): array {
+		return $this->repository->history( $base, $target, $limit );
+	}
+
+	/**
 	 * Cache lifetime, tied to the configured refresh interval by default
 	 * so cached rates don't outlive the next scheduled refresh, but
 	 * filterable for stores that want a shorter/longer window.

@@ -81,14 +81,14 @@ class RateRepository {
 	}
 
 	/**
-	 * @return array{rate: float, source: string, created_at: string}[]
+	 * @return array{id: int, rate: float, source: string, created_at: string}[] Newest first.
 	 */
 	public function history( string $base, string $target, int $limit = 30 ): array {
 		global $wpdb;
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT rate, source, created_at FROM {$this->table()} WHERE base_currency = %s AND target_currency = %s ORDER BY created_at DESC, id DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id, rate, source, created_at FROM {$this->table()} WHERE base_currency = %s AND target_currency = %s ORDER BY created_at DESC, id DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				strtoupper( $base ),
 				strtoupper( $target ),
 				$limit
@@ -98,11 +98,45 @@ class RateRepository {
 
 		return array_map(
 			static fn ( array $row ) => array(
+				'id'         => (int) $row['id'],
 				'rate'       => (float) $row['rate'],
 				'source'     => (string) $row['source'],
 				'created_at' => (string) $row['created_at'],
 			),
 			$rows ?: array()
+		);
+	}
+
+	/**
+	 * Looks up a single history row by its own id — used by rollback, so
+	 * the rate being restored is always one that genuinely exists in
+	 * history for that exact currency pair, never an arbitrary
+	 * client-supplied number.
+	 *
+	 * @return array{id: int, base_currency: string, target_currency: string, rate: float, source: string, created_at: string}|null
+	 */
+	public function findById( int $id ): ?array {
+		global $wpdb;
+
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT id, base_currency, target_currency, rate, source, created_at FROM {$this->table()} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$id
+			),
+			ARRAY_A
+		);
+
+		if ( ! $row ) {
+			return null;
+		}
+
+		return array(
+			'id'              => (int) $row['id'],
+			'base_currency'   => (string) $row['base_currency'],
+			'target_currency' => (string) $row['target_currency'],
+			'rate'            => (float) $row['rate'],
+			'source'          => (string) $row['source'],
+			'created_at'      => (string) $row['created_at'],
 		);
 	}
 }

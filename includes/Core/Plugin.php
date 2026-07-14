@@ -152,6 +152,8 @@ final class Plugin {
 		Cron::register();
 
 		\WCMCS\Admin\RateAjaxController::register();
+		\WCMCS\Admin\RateHistoryAjaxController::register();
+		\WCMCS\Admin\AdminMenu::register();
 	}
 
 	private function load_textdomain(): void {
