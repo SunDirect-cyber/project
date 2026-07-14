@@ -80,6 +80,24 @@ final class Plugin {
 			static fn () => new \WCMCS\Services\OrderRepository()
 		);
 
+		$this->container->set(
+			'currency_repository',
+			static fn () => new \WCMCS\Services\Currency\CurrencyRepository()
+		);
+
+		$this->container->set(
+			'currency_formatter',
+			static fn () => new \WCMCS\Services\Currency\CurrencyFormatter()
+		);
+
+		$this->container->set(
+			'currency_service',
+			static fn ( Container $c ) => new \WCMCS\Services\CurrencyService(
+				$c->get( 'currency_repository' ),
+				$c->get( 'currency_formatter' )
+			)
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 	}
 
