@@ -23,11 +23,13 @@ class RateService {
 	private RateProviderChain $chain;
 	private RateRepository $repository;
 	private CacheService $cache;
+	private RateValidator $validator;
 
-	public function __construct( RateProviderChain $chain, RateRepository $repository, CacheService $cache ) {
+	public function __construct( RateProviderChain $chain, RateRepository $repository, CacheService $cache, RateValidator $validator ) {
 		$this->chain      = $chain;
 		$this->repository = $repository;
 		$this->cache      = $cache;
+		$this->validator  = $validator;
 	}
 
 	public function getRate( string $base, string $target ): ?float {
@@ -77,16 +79,30 @@ class RateService {
 	}
 
 	/**
-	 * Fetches straight from the provider chain, bypassing the cache, and
-	 * records the result to history on success. Used both by getRate()
-	 * on a cache miss and by refreshAll() during a scheduled/manual refresh.
+	 * Fetches straight from the provider chain, bypassing the cache,
+	 * runs the result through RateValidator, and records it to history
+	 * only if it passes. A rate that fails validation (out of bounds, or
+	 * too big a swing from the last known rate) is treated exactly like
+	 * a fetch failure — it's discarded, never stored, and null is
+	 * returned so callers fall back to the last known-good rate instead.
+	 * Used both by getRate() on a cache miss and by refreshAll() during a
+	 * scheduled/manual refresh.
 	 */
 	public function fetchLive( string $base, string $target ): ?float {
 		$rate = $this->chain->getRate( $base, $target );
 
-		if ( null !== $rate ) {
-			$this->repository->store( $base, $target, $rate, $this->chain->getSourceName() );
+		if ( null === $rate ) {
+			return null;
 		}
+
+		$previous   = $this->repository->latest( $base, $target );
+		$validation = $this->validator->validate( $base, $target, $rate, $previous );
+
+		if ( ! $validation['valid'] ) {
+			return null;
+		}
+
+		$this->repository->store( $base, $target, $rate, $this->chain->getSourceName() );
 
 		return $rate;
 	}

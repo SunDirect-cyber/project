@@ -134,11 +134,20 @@ final class Plugin {
 		);
 
 		$this->container->set(
+			'rate_validator',
+			static fn ( Container $c ) => new \WCMCS\Services\ExchangeRate\RateValidator(
+				$c->get( 'pricing_rule_service' ),
+				$c->get( 'logger_service' )
+			)
+		);
+
+		$this->container->set(
 			'rate_service',
 			static fn ( Container $c ) => new \WCMCS\Services\ExchangeRate\RateService(
 				$c->get( 'rate_provider_chain' ),
 				$c->get( 'rate_repository' ),
-				$c->get( 'cache_service' )
+				$c->get( 'cache_service' ),
+				$c->get( 'rate_validator' )
 			)
 		);
 

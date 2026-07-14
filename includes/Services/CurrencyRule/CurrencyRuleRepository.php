@@ -22,6 +22,7 @@ class CurrencyRuleRepository {
 	public const TYPE_LOCKED_RATE    = 'locked_rate';
 	public const TYPE_MARKUP_PERCENT = 'markup_percent';
 	public const TYPE_ROUNDING       = 'rounding';
+	public const TYPE_RATE_BOUNDS    = 'rate_bounds';
 
 	private function table(): string {
 		global $wpdb;

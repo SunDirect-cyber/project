@@ -108,4 +108,44 @@ class PricingRuleService {
 	public function roundPrice( string $currency, float $amount ): float {
 		return RoundingRule::apply( $amount, $this->getRoundingConfig( $currency ) );
 	}
+
+	/**
+	 * Admin-defined safety limits: a fetched rate outside [min, max] for
+	 * this currency gets rejected by RateValidator before it ever
+	 * reaches history or a customer's price, regardless of what any
+	 * provider returned.
+	 *
+	 * @return array{min: float, max: float}|null
+	 */
+	public function getRateBounds( string $currency ): ?array {
+		$rule = $this->rules->get( strtoupper( $currency ), CurrencyRuleRepository::TYPE_RATE_BOUNDS );
+
+		if ( null === $rule ) {
+			return null;
+		}
+
+		$config = json_decode( $rule['rule_value'], true );
+
+		if ( ! is_array( $config ) || ! isset( $config['min'], $config['max'] ) ) {
+			return null;
+		}
+
+		return array( 'min' => (float) $config['min'], 'max' => (float) $config['max'] );
+	}
+
+	public function setRateBounds( string $currency, float $min, float $max ): void {
+		if ( $min > $max ) {
+			throw new \InvalidArgumentException( 'Minimum bound cannot be greater than the maximum bound.' );
+		}
+
+		$this->rules->upsert(
+			strtoupper( $currency ),
+			CurrencyRuleRepository::TYPE_RATE_BOUNDS,
+			wp_json_encode( array( 'min' => $min, 'max' => $max ) )
+		);
+	}
+
+	public function clearRateBounds( string $currency ): void {
+		$this->rules->remove( strtoupper( $currency ), CurrencyRuleRepository::TYPE_RATE_BOUNDS );
+	}
 }
