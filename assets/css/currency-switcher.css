@@ -97,3 +97,28 @@
 	display: flex;
 	align-items: center;
 }
+
+.wcmcs-geo-modal {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+}
+
+.wcmcs-geo-modal__box {
+	background: #fff;
+	padding: 1.5em;
+	border-radius: 8px;
+	max-width: 360px;
+	text-align: center;
+}
+
+.wcmcs-geo-modal__actions {
+	display: flex;
+	gap: 0.6em;
+	justify-content: center;
+	margin-top: 1em;
+}

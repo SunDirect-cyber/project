@@ -199,6 +199,23 @@ final class Plugin {
 		);
 
 		$this->container->set(
+			'currency_resolution_engine',
+			static fn ( Container $c ) => new \WCMCS\Services\CurrencyResolutionEngine(
+				$c->get( 'currency_persistence_service' ),
+				$c->get( 'geo_currency_resolver' )
+			)
+		);
+
+		$this->container->set(
+			'geo_suggestion_service',
+			static fn ( Container $c ) => new \WCMCS\Services\Geo\GeoSuggestionService(
+				$c->get( 'geo_currency_resolver' ),
+				$c->get( 'currency_persistence_service' ),
+				$c->get( 'currency_service' )
+			)
+		);
+
+		$this->container->set(
 			'currency_switcher_renderer',
 			static fn ( Container $c ) => new \WCMCS\Frontend\CurrencySwitcherRenderer(
 				$c->get( 'currency_service' ),
@@ -222,8 +239,22 @@ final class Plugin {
 		\WCMCS\Frontend\UrlCurrencyOverride::register();
 		\WCMCS\Frontend\PriceDisplayHooks::register();
 		\WCMCS\Frontend\OrderCurrencyRecorder::register();
+		\WCMCS\Frontend\GeoSuggestionController::register();
 
 		$container = $this->container;
+
+		// Priority 20: after UrlCurrencyOverride's default-priority (10)
+		// 'init' hook, so a ?currency= link this same request has already
+		// been persisted by the time conflict resolution runs — it'll see
+		// a non-null, source=url currency and correctly leave it alone.
+		add_action(
+			'init',
+			static function () use ( $container ) {
+				$container->get( 'currency_resolution_engine' )->resolve();
+			},
+			20
+		);
+
 		add_action(
 			'wp_login',
 			static function ( string $user_login, \WP_User $user ) use ( $container ) {
