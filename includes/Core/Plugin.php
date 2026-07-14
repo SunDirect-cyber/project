@@ -177,6 +177,20 @@ final class Plugin {
 			)
 		);
 
+		$this->container->set(
+			'geo_country_detector',
+			static fn () => new \WCMCS\Services\Geo\GeoCountryDetector()
+		);
+
+		$this->container->set(
+			'geo_currency_resolver',
+			static fn ( Container $c ) => new \WCMCS\Services\Geo\GeoCurrencyResolver(
+				$c->get( 'geo_country_detector' ),
+				$c->get( 'cache_service' ),
+				$c->get( 'currency_service' )
+			)
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 
 		Cron::register();
