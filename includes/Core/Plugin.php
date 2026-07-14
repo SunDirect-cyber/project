@@ -147,6 +147,27 @@ final class Plugin {
 			static fn () => new RateFailureMonitor()
 		);
 
+		$this->container->set(
+			'currency_rule_repository',
+			static fn () => new \WCMCS\Services\CurrencyRule\CurrencyRuleRepository()
+		);
+
+		$this->container->set(
+			'pricing_rule_service',
+			static fn ( Container $c ) => new \WCMCS\Services\CurrencyRule\PricingRuleService(
+				$c->get( 'currency_rule_repository' )
+			)
+		);
+
+		$this->container->set(
+			'price_conversion_service',
+			static fn ( Container $c ) => new \WCMCS\Services\PriceConversionService(
+				$c->get( 'rate_service' ),
+				$c->get( 'pricing_rule_service' ),
+				$c->get( 'cache_service' )
+			)
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 
 		Cron::register();
