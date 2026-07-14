@@ -191,6 +191,14 @@ final class Plugin {
 			)
 		);
 
+		$this->container->set(
+			'currency_switcher_renderer',
+			static fn ( Container $c ) => new \WCMCS\Frontend\CurrencySwitcherRenderer(
+				$c->get( 'currency_service' ),
+				$c->get( 'session_service' )
+			)
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 
 		Cron::register();
@@ -198,6 +206,12 @@ final class Plugin {
 		\WCMCS\Admin\RateAjaxController::register();
 		\WCMCS\Admin\RateHistoryAjaxController::register();
 		\WCMCS\Admin\AdminMenu::register();
+
+		\WCMCS\Frontend\CurrencySwitcherWidget::register();
+		\WCMCS\Frontend\Shortcode::register();
+		\WCMCS\Frontend\Block::register();
+		\WCMCS\Frontend\CurrencySwitchController::register();
+		\WCMCS\Frontend\FrontendHooks::register();
 	}
 
 	private function load_textdomain(): void {

@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+	<!--
+		Simplified geometric flag icons, hand-built locally (no external
+		CDN/icon-library dependency). Each <symbol> covers the currency's
+		representative flag using its correct basic colors/layout at icon
+		scale (fine detail like coats of arms, exact star counts/positions,
+		and script is intentionally omitted at this size). Only currencies
+		listed in WCMCS\Frontend\FlagRegistry have a symbol here — every
+		other currency falls back to a plain text badge in the switcher
+		rather than guessing at a flag design.
+	-->
+	<symbol id="wcmcs-flag-usd" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#fff"/>
+		<g fill="#B22234">
+			<rect y="0" width="60" height="3.08"/><rect y="6.15" width="60" height="3.08"/>
+			<rect y="12.3" width="60" height="3.08"/><rect y="18.46" width="60" height="3.08"/>
+			<rect y="24.6" width="60" height="3.08"/><rect y="30.77" width="60" height="3.08"/>
+			<rect y="36.9" width="60" height="3.08"/>
+		</g>
+		<rect width="24" height="21.5" fill="#3C3B6E"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-eur" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#003399"/>
+		<g fill="#FFCC00">
+			<circle cx="30" cy="8" r="1.6"/><circle cx="38" cy="10.5" r="1.6"/><circle cx="43.5" cy="16.5" r="1.6"/>
+			<circle cx="45.5" cy="24" r="1.6"/><circle cx="43.5" cy="31.5" r="1.6"/><circle cx="38" cy="37.5" r="1.6"/>
+			<circle cx="30" cy="40" r="1.6"/><circle cx="22" cy="37.5" r="1.6"/><circle cx="16.5" cy="31.5" r="1.6"/>
+			<circle cx="14.5" cy="24" r="1.6"/><circle cx="16.5" cy="16.5" r="1.6"/><circle cx="22" cy="10.5" r="1.6"/>
+		</g>
+	</symbol>
+
+	<symbol id="wcmcs-flag-gbp" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#012169"/>
+		<path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="7"/>
+		<path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="2.5"/>
+		<path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="11"/>
+		<path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="6.5"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-jpy" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#fff"/>
+		<circle cx="30" cy="20" r="11" fill="#BC002D"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-cny" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#DE2910"/>
+		<g fill="#FFDE00">
+			<circle cx="12" cy="10" r="4"/>
+			<circle cx="24" cy="4" r="1.3"/><circle cx="28" cy="9" r="1.3"/>
+			<circle cx="27" cy="15" r="1.3"/><circle cx="22" cy="17" r="1.3"/>
+		</g>
+	</symbol>
+
+	<symbol id="wcmcs-flag-inr" viewBox="0 0 60 40">
+		<rect width="60" height="13.3" fill="#FF9933"/>
+		<rect y="13.3" width="60" height="13.3" fill="#fff"/>
+		<rect y="26.6" width="60" height="13.4" fill="#138808"/>
+		<circle cx="30" cy="20" r="3.2" fill="none" stroke="#000080" stroke-width="0.6"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-brl" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#009739"/>
+		<polygon points="30,5 55,20 30,35 5,20" fill="#FEDD00"/>
+		<circle cx="30" cy="20" r="7" fill="#012169"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-mxn" viewBox="0 0 60 40">
+		<rect width="20" height="40" fill="#006847"/>
+		<rect x="20" width="20" height="40" fill="#fff"/>
+		<rect x="40" width="20" height="40" fill="#CE1126"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-rub" viewBox="0 0 60 40">
+		<rect width="60" height="13.3" fill="#fff"/>
+		<rect y="13.3" width="60" height="13.3" fill="#0039A6"/>
+		<rect y="26.6" width="60" height="13.4" fill="#D52B1E"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-try" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#E30A17"/>
+		<circle cx="24" cy="20" r="8" fill="#fff"/>
+		<circle cx="26.5" cy="20" r="6.4" fill="#E30A17"/>
+		<polygon points="34,20 40,17.8 36.2,22.6 36.2,17.4 40,22.2" fill="#fff"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-chf" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#FF0000"/>
+		<rect x="25" y="10" width="10" height="20" fill="#fff"/>
+		<rect x="17" y="18" width="26" height="4" fill="#fff"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-sek" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#006AA7"/>
+		<rect x="20" width="6" height="40" fill="#FECC00"/>
+		<rect y="17" width="60" height="6" fill="#FECC00"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-nok" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#EF2B2D"/>
+		<rect x="18" width="8" height="40" fill="#fff"/>
+		<rect y="16" width="60" height="8" fill="#fff"/>
+		<rect x="20" width="4" height="40" fill="#002868"/>
+		<rect y="18" width="60" height="4" fill="#002868"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-dkk" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#C60C30"/>
+		<rect x="18" width="6" height="40" fill="#fff"/>
+		<rect y="17" width="60" height="6" fill="#fff"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-pln" viewBox="0 0 60 40">
+		<rect width="60" height="20" fill="#fff"/>
+		<rect y="20" width="60" height="20" fill="#DC143C"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-cad" viewBox="0 0 60 40">
+		<rect width="15" height="40" fill="#FF0000"/>
+		<rect x="15" width="30" height="40" fill="#fff"/>
+		<rect x="45" width="15" height="40" fill="#FF0000"/>
+		<polygon points="30,10 32,17 39,15 34,21 40,26 33,25 33,32 30,27 27,32 27,25 20,26 26,21 21,15 28,17" fill="#FF0000"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-aud" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#00008B"/>
+		<rect width="26" height="16" fill="#00008B"/>
+		<path d="M0,0 L26,16 M26,0 L0,16" stroke="#fff" stroke-width="2.6"/>
+		<path d="M13,0 V16 M0,8 H26" stroke="#fff" stroke-width="4"/>
+		<path d="M13,0 V16 M0,8 H26" stroke="#FF0000" stroke-width="2.2"/>
+		<g fill="#fff">
+			<circle cx="45" cy="10" r="1.8"/><circle cx="50" cy="20" r="1.8"/>
+			<circle cx="46" cy="30" r="1.8"/><circle cx="38" cy="33" r="1.4"/><circle cx="34" cy="24" r="1.4"/>
+		</g>
+	</symbol>
+
+	<symbol id="wcmcs-flag-nzd" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#00247D"/>
+		<rect width="26" height="16" fill="#00247D"/>
+		<path d="M0,0 L26,16 M26,0 L0,16" stroke="#fff" stroke-width="2.6"/>
+		<path d="M13,0 V16 M0,8 H26" stroke="#fff" stroke-width="4"/>
+		<path d="M13,0 V16 M0,8 H26" stroke="#C8102E" stroke-width="2.2"/>
+		<g fill="#C8102E" stroke="#fff" stroke-width="0.4">
+			<circle cx="45" cy="9" r="1.6"/><circle cx="52" cy="18" r="1.6"/>
+			<circle cx="47" cy="28" r="1.6"/><circle cx="40" cy="33" r="1.6"/>
+		</g>
+	</symbol>
+
+	<symbol id="wcmcs-flag-thb" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#fff"/>
+		<rect y="0" width="60" height="6.7" fill="#A51931"/>
+		<rect y="6.7" width="60" height="6.65" fill="#F4F5F8"/>
+		<rect y="13.3" width="60" height="13.4" fill="#2D2A4A"/>
+		<rect y="26.65" width="60" height="6.65" fill="#F4F5F8"/>
+		<rect y="33.3" width="60" height="6.7" fill="#A51931"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-vnd" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#DA251D"/>
+		<polygon points="30,10 33,18 42,18 35,23 38,31 30,26 22,31 25,23 18,18 27,18" fill="#FFFF00"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-aed" viewBox="0 0 60 40">
+		<rect width="15" height="40" fill="#FF0000"/>
+		<rect x="15" y="0" width="45" height="13.3" fill="#00732F"/>
+		<rect x="15" y="13.3" width="45" height="13.4" fill="#fff"/>
+		<rect x="15" y="26.6" width="45" height="13.4" fill="#000"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-ils" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#fff"/>
+		<rect y="4" width="60" height="4" fill="#0038B8"/>
+		<rect y="32" width="60" height="4" fill="#0038B8"/>
+		<polygon points="30,14 34.6,22 25.4,22" fill="none" stroke="#0038B8" stroke-width="1.3"/>
+		<polygon points="30,26 25.4,18 34.6,18" fill="none" stroke="#0038B8" stroke-width="1.3"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-ngn" viewBox="0 0 60 40">
+		<rect width="20" height="40" fill="#008751"/>
+		<rect x="20" width="20" height="40" fill="#fff"/>
+		<rect x="40" width="20" height="40" fill="#008751"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-idr" viewBox="0 0 60 40">
+		<rect width="60" height="20" fill="#FF0000"/>
+		<rect y="20" width="60" height="20" fill="#fff"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-krw" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#fff"/>
+		<circle cx="30" cy="20" r="8" fill="#C60C30"/>
+		<path d="M30,12 A8,8 0 0 1 30,28 A4,4 0 0 1 30,20 A4,4 0 0 0 30,12" fill="#003478"/>
+	</symbol>
+
+	<symbol id="wcmcs-flag-zar" viewBox="0 0 60 40">
+		<rect width="60" height="40" fill="#007749"/>
+		<polygon points="0,0 24,20 0,40" fill="#FFB612"/>
+		<polygon points="0,4 20,20 0,36" fill="#000"/>
+		<rect y="15" width="60" height="10" fill="#DE3831"/>
+		<rect y="17.5" width="60" height="5" fill="#002395"/>
+	</symbol>
+</svg>
