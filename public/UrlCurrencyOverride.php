@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * of the visit, not just the one page the link pointed at.
  *
  * Runs on 'init', early enough that the currency is already switched
- * before WooCommerce/PriceDisplayHooks render anything on this same
+ * before WooCommerce/PriceConverter render anything on this same
  * request. The value is validated against a strict 3-letter pattern and
  * against the store's actually-enabled currencies before it's ever used
  * anywhere — an arbitrary query string is attacker-controlled input, so

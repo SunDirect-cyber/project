@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Snapshots the exchange rate onto an order the moment it's placed, via
  * the OrderRepository built earlier for HPOS compatibility. The order's
  * own currency (order->get_currency()) is already correct by this point
- * — PriceDisplayHooks made 'woocommerce_currency' return the shopper's
+ * — PriceConverter made 'woocommerce_currency' return the shopper's
  * active currency during checkout, so WooCommerce itself created the
  * order in that currency. What this adds is the rate that was in effect
  * and the base-currency equivalent, both permanently attached to the

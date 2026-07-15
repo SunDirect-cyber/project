@@ -237,7 +237,7 @@ final class Plugin {
 		\WCMCS\Frontend\CurrencySwitchController::register();
 		\WCMCS\Frontend\FrontendHooks::register();
 		\WCMCS\Frontend\UrlCurrencyOverride::register();
-		\WCMCS\Frontend\PriceDisplayHooks::register();
+		\WCMCS\Frontend\PriceConverter::register();
 		\WCMCS\Frontend\OrderCurrencyRecorder::register();
 		\WCMCS\Frontend\GeoSuggestionController::register();
 
