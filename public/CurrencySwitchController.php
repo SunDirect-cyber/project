@@ -41,9 +41,10 @@ class CurrencySwitchController {
 
 		/** @var \WCMCS\Services\CurrencyPersistenceService $persistence */
 		$persistence = Plugin::instance()->container()->get( 'currency_persistence_service' );
+		$previous    = $persistence->getCurrency();
 		$persistence->setCurrency( $requested, SessionService::SOURCE_MANUAL );
 
-		do_action( 'wcmcs_currency_switched', $requested, SessionService::SOURCE_MANUAL );
+		do_action( 'wcmcs_currency_switched', $requested, SessionService::SOURCE_MANUAL, $previous );
 
 		wp_send_json_success( array( 'currency' => $requested ) );
 	}

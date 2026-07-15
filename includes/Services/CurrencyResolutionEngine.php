@@ -1,6 +1,7 @@
 <?php
 namespace WCMCS\Services;
 
+use WCMCS\Services\Analytics\EventTracker;
 use WCMCS\Services\Geo\GeoCurrencyResolver;
 use WCMCS\Services\Geo\GeoSuggestionService;
 
@@ -37,10 +38,12 @@ class CurrencyResolutionEngine {
 
 	private CurrencyPersistenceService $persistence;
 	private GeoCurrencyResolver $geoResolver;
+	private EventTracker $eventTracker;
 
-	public function __construct( CurrencyPersistenceService $persistence, GeoCurrencyResolver $geoResolver ) {
-		$this->persistence = $persistence;
+	public function __construct( CurrencyPersistenceService $persistence, GeoCurrencyResolver $geoResolver, EventTracker $eventTracker ) {
+		$this->persistence  = $persistence;
 		$this->geoResolver  = $geoResolver;
+		$this->eventTracker = $eventTracker;
 	}
 
 	public function resolve(): void {
@@ -72,6 +75,13 @@ class CurrencyResolutionEngine {
 		$result = $this->geoResolver->resolve();
 
 		$this->persistence->setCurrency( $result['currency'], SessionService::SOURCE_AUTO );
+
+		// Only a genuine geolocation/language detection, not the "nothing
+		// detected, fell back to base currency" case, counts as a country
+		// visit worth reporting on.
+		if ( $result['detected'] && null !== $result['country'] ) {
+			$this->eventTracker->recordCountryVisit( $result['country'], $result['currency'] );
+		}
 	}
 
 	public static function mode(): string {

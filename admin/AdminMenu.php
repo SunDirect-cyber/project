@@ -24,6 +24,7 @@ class AdminMenu {
 	public const SLUG_ACTIVITY_LOG   = 'wcmcs-activity-log';
 	public const SLUG_ANALYTICS      = 'wcmcs-analytics';
 	public const SLUG_CURRENCY_IMPACT = 'wcmcs-currency-impact';
+	public const SLUG_GEO_INSIGHTS    = 'wcmcs-geo-insights';
 
 	private static string $exchangeRatesHook = '';
 
@@ -115,6 +116,15 @@ class AdminMenu {
 			self::CAPABILITY,
 			self::SLUG_CURRENCY_IMPACT,
 			array( CurrencyImpactPage::class, 'render' )
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'Geographic & Behavior', 'wc-multicurrency-switcher' ),
+			__( 'Geographic & Behavior', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			self::SLUG_GEO_INSIGHTS,
+			array( GeographicInsightsPage::class, 'render' )
 		);
 
 		add_submenu_page(

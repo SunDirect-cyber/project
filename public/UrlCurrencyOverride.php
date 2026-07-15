@@ -49,12 +49,14 @@ class UrlCurrencyOverride {
 		/** @var \WCMCS\Services\CurrencyPersistenceService $persistence */
 		$persistence = Plugin::instance()->container()->get( 'currency_persistence_service' );
 
-		if ( $persistence->getCurrency() === $requested ) {
+		$previous = $persistence->getCurrency();
+
+		if ( $previous === $requested ) {
 			return;
 		}
 
 		$persistence->setCurrency( $requested, SessionService::SOURCE_URL );
 
-		do_action( 'wcmcs_currency_switched', $requested, SessionService::SOURCE_URL );
+		do_action( 'wcmcs_currency_switched', $requested, SessionService::SOURCE_URL, $previous );
 	}
 }

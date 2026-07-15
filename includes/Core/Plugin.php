@@ -202,7 +202,8 @@ final class Plugin {
 			'currency_resolution_engine',
 			static fn ( Container $c ) => new \WCMCS\Services\CurrencyResolutionEngine(
 				$c->get( 'currency_persistence_service' ),
-				$c->get( 'geo_currency_resolver' )
+				$c->get( 'geo_currency_resolver' ),
+				$c->get( 'event_tracker' )
 			)
 		);
 
@@ -250,6 +251,18 @@ final class Plugin {
 			static fn () => new \WCMCS\Services\Analytics\CurrencyStatsRepository()
 		);
 
+		$this->container->set(
+			'event_tracker',
+			static fn ( Container $c ) => new \WCMCS\Services\Analytics\EventTracker(
+				$c->get( 'cache_service' )
+			)
+		);
+
+		$this->container->set(
+			'geographic_insights_report',
+			static fn () => new \WCMCS\Services\Analytics\GeographicInsightsReport()
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 
 		Cron::register();
@@ -274,6 +287,7 @@ final class Plugin {
 		\WCMCS\Frontend\ShippingCostConverter::register();
 		\WCMCS\Frontend\CouponConverter::register();
 		\WCMCS\Frontend\GatewayCurrencyGuard::register();
+		\WCMCS\Frontend\AnalyticsEventHooks::register();
 		\WCMCS\Frontend\OrderCurrencyRecorder::register();
 		\WCMCS\Frontend\GeoSuggestionController::register();
 

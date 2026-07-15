@@ -15,7 +15,7 @@ class Installer {
 
 	// Bump this whenever the table schema changes, so run_if_needed() can
 	// detect upgrades on existing installs, not just fresh activations.
-	public const DB_VERSION = '1.1.0';
+	public const DB_VERSION = '1.2.0';
 
 	public static function install(): void {
 		global $wpdb;
@@ -28,6 +28,7 @@ class Installer {
 		$currency_rules_table = $wpdb->prefix . 'wcmcs_currency_rules';
 		$logs_table            = $wpdb->prefix . 'wcmcs_logs';
 		$stats_daily_table     = $wpdb->prefix . 'wcmcs_currency_stats_daily';
+		$events_table          = $wpdb->prefix . 'wcmcs_currency_events';
 
 		$sql = "
 CREATE TABLE {$exchange_rates_table} (
@@ -80,6 +81,20 @@ CREATE TABLE {$stats_daily_table} (
     UNIQUE KEY date_currency (stat_date, currency),
     KEY stat_date (stat_date)
 ) {$charset_collate};
+
+CREATE TABLE {$events_table} (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    event_type VARCHAR(20) NOT NULL,
+    session_id VARCHAR(64) NULL,
+    country CHAR(2) NULL,
+    from_currency CHAR(3) NULL,
+    to_currency CHAR(3) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY  (id),
+    KEY event_type (event_type),
+    KEY session_id (session_id),
+    KEY created_at (created_at)
+) {$charset_collate};
 ";
 
 		dbDelta( $sql );
@@ -105,6 +120,7 @@ CREATE TABLE {$stats_daily_table} (
 			$wpdb->prefix . 'wcmcs_currency_rules',
 			$wpdb->prefix . 'wcmcs_logs',
 			$wpdb->prefix . 'wcmcs_currency_stats_daily',
+			$wpdb->prefix . 'wcmcs_currency_events',
 		);
 
 		foreach ( $tables as $table ) {
