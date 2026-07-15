@@ -46,6 +46,10 @@ function wcmcs_uninstall_single_site(): void {
 		'wcmcs_floating_widget_style',
 		'wcmcs_menu_location',
 		'wcmcs_rate_deviation_threshold_percent',
+		'wcmcs_notification_recipients',
+		'wcmcs_notification_summary_frequency',
+		'wcmcs_notification_anomaly_alerts',
+		'wcmcs_last_summary_sent_at',
 	);
 
 	foreach ( $options as $option ) {

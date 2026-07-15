@@ -139,4 +139,50 @@ class RateRepository {
 			'created_at'      => (string) $row['created_at'],
 		);
 	}
+
+	/**
+	 * One rate per day (the last one recorded that day — a "closing
+	 * rate", matching financial convention) for a date range — used to
+	 * line up against CurrencyStatsRepository's daily sales figures at
+	 * the same granularity, since history() can have many rows per day
+	 * (one per scheduled refresh) which doesn't align with day-bucketed
+	 * sales data. Written as a MAX(id)-per-day self-join rather than a
+	 * window function (ROW_NUMBER), since window functions need MySQL 8
+	 * / MariaDB 10.2+ and this needs to work on older hosts too.
+	 *
+	 * @return array<string, float> Date (Y-m-d) => rate.
+	 */
+	public function dailyRates( string $base, string $target, string $fromDate, string $toDate ): array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DATE(t1.created_at) AS day, t1.rate AS rate
+				FROM {$table} t1
+				WHERE t1.base_currency = %s AND t1.target_currency = %s
+					AND DATE(t1.created_at) BETWEEN %s AND %s
+					AND t1.id = (
+						SELECT MAX(t2.id) FROM {$table} t2
+						WHERE t2.base_currency = t1.base_currency AND t2.target_currency = t1.target_currency
+							AND DATE(t2.created_at) = DATE(t1.created_at)
+					)
+				ORDER BY day ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				strtoupper( $base ),
+				strtoupper( $target ),
+				$fromDate,
+				$toDate
+			),
+			ARRAY_A
+		);
+
+		$result = array();
+
+		foreach ( $rows ?: array() as $row ) {
+			$result[ (string) $row['day'] ] = (float) $row['rate'];
+		}
+
+		return $result;
+	}
 }

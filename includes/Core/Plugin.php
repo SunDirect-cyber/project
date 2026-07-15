@@ -263,6 +263,30 @@ final class Plugin {
 			static fn () => new \WCMCS\Services\Analytics\GeographicInsightsReport()
 		);
 
+		$this->container->set(
+			'rate_correlation_report',
+			static fn ( Container $c ) => new \WCMCS\Services\Analytics\RateFluctuationCorrelationReport(
+				$c->get( 'rate_repository' ),
+				$c->get( 'stats_repository' ),
+				$c->get( 'currency_service' )
+			)
+		);
+
+		$this->container->set(
+			'anomaly_detection_service',
+			static fn ( Container $c ) => new \WCMCS\Services\Analytics\AnomalyDetectionService(
+				$c->get( 'stats_repository' )
+			)
+		);
+
+		$this->container->set(
+			'notification_service',
+			static fn ( Container $c ) => new \WCMCS\Services\Analytics\NotificationService(
+				$c->get( 'stats_repository' ),
+				$c->get( 'currency_service' )
+			)
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 
 		Cron::register();
@@ -273,6 +297,7 @@ final class Plugin {
 		\WCMCS\Admin\CurrencyManagementAjaxController::register();
 		\WCMCS\Admin\RateProviderConfigAjaxController::register();
 		\WCMCS\Admin\AnalyticsAjaxController::register();
+		\WCMCS\Admin\RateCorrelationAjaxController::register();
 		\WCMCS\Admin\AdminMenu::register();
 
 		\WCMCS\Services\Currency\CurrencyOverrideService::register();

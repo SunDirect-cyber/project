@@ -62,5 +62,57 @@ class AnalyticsCron {
 		}
 
 		$aggregator->aggregateDate( $yesterday );
+
+		self::maybeSendSummary( $plugin );
+		self::maybeSendAnomalyAlert( $plugin );
+	}
+
+	private static function maybeSendSummary( Plugin $plugin ): void {
+		$frequency = (string) get_option( 'wcmcs_notification_summary_frequency', 'off' );
+
+		if ( ! in_array( $frequency, array( 'daily', 'weekly' ), true ) ) {
+			return;
+		}
+
+		$lastSent      = (int) get_option( 'wcmcs_last_summary_sent_at', 0 );
+		$intervalHours = 'weekly' === $frequency ? 24 * 7 : 24;
+
+		if ( $lastSent > 0 && ( time() - $lastSent ) < $intervalHours * HOUR_IN_SECONDS ) {
+			return;
+		}
+
+		/** @var \WCMCS\Services\Analytics\NotificationService $notifications */
+		$notifications = $plugin->container()->get( 'notification_service' );
+		$notifications->sendSummary( $frequency );
+
+		update_option( 'wcmcs_last_summary_sent_at', time() );
+	}
+
+	private static function maybeSendAnomalyAlert( Plugin $plugin ): void {
+		if ( empty( get_option( 'wcmcs_notification_anomaly_alerts', false ) ) ) {
+			return;
+		}
+
+		$enabledCurrencies = (array) get_option( 'wcmcs_enabled_currencies', array() );
+
+		if ( empty( $enabledCurrencies ) ) {
+			return;
+		}
+
+		/** @var \WCMCS\Services\CurrencyService $currencyService */
+		$currencyService = $plugin->container()->get( 'currency_service' );
+		/** @var \WCMCS\Services\Analytics\AnomalyDetectionService $anomalyDetection */
+		$anomalyDetection = $plugin->container()->get( 'anomaly_detection_service' );
+
+		$drops     = $anomalyDetection->checkConversionDrops( $enabledCurrencies );
+		$zeroSales = $anomalyDetection->checkZeroSalesDespiteTraffic( $enabledCurrencies, $currencyService->baseCurrency()->code() );
+
+		if ( empty( $drops ) && empty( $zeroSales ) ) {
+			return;
+		}
+
+		/** @var \WCMCS\Services\Analytics\NotificationService $notifications */
+		$notifications = $plugin->container()->get( 'notification_service' );
+		$notifications->sendAnomalyAlert( array( 'conversion_drops' => $drops, 'zero_sales' => $zeroSales ) );
 	}
 }

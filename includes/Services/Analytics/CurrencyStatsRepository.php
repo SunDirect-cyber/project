@@ -65,7 +65,7 @@ class CurrencyStatsRepository {
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT stat_date, currency, revenue FROM {$this->table()} WHERE stat_date BETWEEN %s AND %s ORDER BY stat_date ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT stat_date, currency, revenue, order_count FROM {$this->table()} WHERE stat_date BETWEEN %s AND %s ORDER BY stat_date ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$fromDate,
 				$toDate
 			),
@@ -74,9 +74,10 @@ class CurrencyStatsRepository {
 
 		return array_map(
 			static fn ( array $row ) => array(
-				'stat_date' => (string) $row['stat_date'],
-				'currency'  => strtoupper( (string) $row['currency'] ),
-				'revenue'   => (float) $row['revenue'],
+				'stat_date'   => (string) $row['stat_date'],
+				'currency'    => strtoupper( (string) $row['currency'] ),
+				'revenue'     => (float) $row['revenue'],
+				'order_count' => (int) $row['order_count'],
 			),
 			$rows ?: array()
 		);
