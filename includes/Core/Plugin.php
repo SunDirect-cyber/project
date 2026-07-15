@@ -223,6 +223,16 @@ final class Plugin {
 			)
 		);
 
+		$this->container->set(
+			'stats_service',
+			static fn () => new \WCMCS\Services\StatsService()
+		);
+
+		$this->container->set(
+			'revenue_by_currency_report',
+			static fn () => new \WCMCS\Services\RevenueByCurrencyReport()
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 
 		Cron::register();

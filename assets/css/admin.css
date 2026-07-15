@@ -20,3 +20,95 @@
 .wcmcs-exchange-rates #wcmcs-history-table {
 	margin-top: 16px;
 }
+
+.wcmcs-dashboard .wcmcs-tiles {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin: 16px 0 24px;
+}
+
+.wcmcs-dashboard .wcmcs-tile {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 16px 20px;
+	min-width: 180px;
+	flex: 1 1 180px;
+}
+
+.wcmcs-dashboard .wcmcs-tile__value {
+	display: block;
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.wcmcs-dashboard .wcmcs-tile__label {
+	display: block;
+	color: #646970;
+	font-size: 13px;
+}
+
+.wcmcs-dashboard .wcmcs-health-list {
+	list-style: none;
+	margin: 0 0 24px;
+	padding: 0;
+}
+
+.wcmcs-dashboard .wcmcs-health-item {
+	padding: 8px 12px;
+	border-radius: 4px;
+	margin-bottom: 6px;
+}
+
+.wcmcs-dashboard .wcmcs-health-item--ok {
+	background: #edfaef;
+	color: #1a7431;
+}
+
+.wcmcs-dashboard .wcmcs-health-item--warning {
+	background: #fef8ee;
+	color: #8a6100;
+}
+
+.wcmcs-dashboard .wcmcs-health-item--error {
+	background: #fbeaea;
+	color: #a02222;
+}
+
+.wcmcs-dashboard .wcmcs-revenue-bars {
+	max-width: 640px;
+}
+
+.wcmcs-dashboard .wcmcs-revenue-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 8px;
+}
+
+.wcmcs-dashboard .wcmcs-revenue-row__label {
+	width: 90px;
+	flex-shrink: 0;
+}
+
+.wcmcs-dashboard .wcmcs-revenue-row__bar-track {
+	flex: 1;
+	background: #f0f0f1;
+	border-radius: 3px;
+	height: 16px;
+	overflow: hidden;
+}
+
+.wcmcs-dashboard .wcmcs-revenue-row__bar {
+	display: block;
+	height: 100%;
+	background: #2271b1;
+}
+
+.wcmcs-dashboard .wcmcs-revenue-row__value {
+	width: 120px;
+	flex-shrink: 0;
+	text-align: right;
+}

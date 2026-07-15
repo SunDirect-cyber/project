@@ -100,6 +100,10 @@ class Cron {
 		/** @var \WCMCS\Core\RateFailureMonitor $monitor */
 		$monitor = $plugin->container()->get( 'rate_failure_monitor' );
 		$monitor->recordRefreshResult( $results );
+
+		if ( $plugin->container()->has( 'stats_service' ) ) {
+			$plugin->container()->get( 'stats_service' )->pruneOldCounters();
+		}
 	}
 
 	public static function currentIntervalSlug(): string {

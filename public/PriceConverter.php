@@ -103,7 +103,19 @@ class PriceConverter {
 	/** @var array<string, float|null> Resolved rate per "BASE_TARGET" pair, for this request only. */
 	private static array $rateMemo = array();
 
+	/** Set once, the first time this request actually converts a price — read by the shutdown hook above. */
+	private static bool $conversionServedThisRequest = false;
+
 	public static function register(): void {
+		add_action(
+			'shutdown',
+			static function () {
+				if ( self::$conversionServedThisRequest ) {
+					Plugin::instance()->container()->get( 'stats_service' )->recordConversionServed();
+				}
+			}
+		);
+
 		add_filter( 'woocommerce_currency', array( self::class, 'filter_currency' ) );
 		add_filter( 'woocommerce_product_get_price', array( self::class, 'filter_price' ), 10, 2 );
 		add_filter( 'woocommerce_product_get_regular_price', array( self::class, 'filter_price' ), 10, 2 );
@@ -331,6 +343,8 @@ class PriceConverter {
 		if ( null === $rate ) {
 			return $original;
 		}
+
+		self::$conversionServedThisRequest = true;
 
 		// Cross-request cache: conversion is a pure function of (amount,
 		// currency, rate, rounding config) — every one of those is stable
