@@ -15,7 +15,7 @@ class Installer {
 
 	// Bump this whenever the table schema changes, so run_if_needed() can
 	// detect upgrades on existing installs, not just fresh activations.
-	public const DB_VERSION = '1.2.0';
+	public const DB_VERSION = '1.3.0';
 
 	public static function install(): void {
 		global $wpdb;
@@ -39,7 +39,7 @@ CREATE TABLE {$exchange_rates_table} (
     source VARCHAR(50) NOT NULL DEFAULT 'manual',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY  (id),
-    KEY currency_pair (base_currency, target_currency),
+    KEY currency_pair (base_currency, target_currency, created_at),
     KEY created_at (created_at)
 ) {$charset_collate};
 
@@ -93,13 +93,57 @@ CREATE TABLE {$events_table} (
     PRIMARY KEY  (id),
     KEY event_type (event_type),
     KEY session_id (session_id),
-    KEY created_at (created_at)
+    KEY created_at (created_at),
+    KEY event_type_created (event_type, created_at),
+    KEY to_currency_created (to_currency, created_at)
 ) {$charset_collate};
 ";
 
 		dbDelta( $sql );
 
+		// dbDelta() reliably creates missing tables/columns but is well
+		// known not to reliably add or modify indexes on tables that
+		// already exist — so on an upgrade (not a fresh install) the two
+		// composite indexes added in 1.3.0 need to be added explicitly.
+		self::ensure_index(
+			$exchange_rates_table,
+			'currency_pair',
+			'(base_currency, target_currency, created_at)'
+		);
+		self::ensure_index( $events_table, 'event_type_created', '(event_type, created_at)' );
+		self::ensure_index( $events_table, 'to_currency_created', '(to_currency, created_at)' );
+
 		update_option( 'wcmcs_db_version', self::DB_VERSION );
+	}
+
+	/**
+	 * Adds an index if it doesn't already exist, and replaces it if it
+	 * exists with different columns (e.g. the pre-1.3.0 two-column
+	 * currency_pair index being widened to three columns) — dbDelta()
+	 * won't do either of these reliably for tables that already exist.
+	 */
+	private static function ensure_index( string $table, string $indexName, string $columnsSql ): void {
+		global $wpdb;
+
+		$existingColumns = $wpdb->get_col(
+			$wpdb->prepare(
+				'SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND INDEX_NAME = %s ORDER BY SEQ_IN_INDEX',
+				$table,
+				$indexName
+			)
+		);
+
+		$wantedColumns = array_map( 'trim', explode( ',', trim( $columnsSql, '()' ) ) );
+
+		if ( $existingColumns === $wantedColumns ) {
+			return; // Already exactly right — nothing to do.
+		}
+
+		if ( ! empty( $existingColumns ) ) {
+			$wpdb->query( "ALTER TABLE {$table} DROP INDEX {$indexName}" ); // phpcs:ignore WordPress.DB.PreparedSQL
+		}
+
+		$wpdb->query( "ALTER TABLE {$table} ADD INDEX {$indexName} {$columnsSql}" ); // phpcs:ignore WordPress.DB.PreparedSQL
 	}
 
 	/**

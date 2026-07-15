@@ -19,16 +19,67 @@ class FrontendHooks {
 	private static bool $spritePrinted = false;
 
 	public static function register(): void {
-		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( self::class, 'maybe_enqueue_styles' ) );
 		add_action( 'wp_footer', array( self::class, 'maybe_enqueue_footer_assets' ), 1 );
 		add_action( 'wp_footer', array( self::class, 'maybe_print_sprite' ), 2 );
 		add_action( 'wp_footer', array( self::class, 'maybe_render_floating_widget' ), 15 );
 		add_filter( 'wp_nav_menu_items', array( self::class, 'maybe_inject_into_menu' ), 10, 2 );
 	}
 
-	public static function enqueue_styles(): void {
-		wp_register_style( 'wcmcs-currency-switcher', WCMCS_URL . 'assets/css/currency-switcher.css', array(), WCMCS_VERSION );
-		wp_enqueue_style( 'wcmcs-currency-switcher' );
+	/** Suffix picked once per request: '.min' unless SCRIPT_DEBUG is on. */
+	private static function assetSuffix(): string {
+		return ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+	}
+
+	/**
+	 * Loads the switcher CSS in <head> — where it belongs, since loading
+	 * it late causes a flash of unstyled content for any switcher that
+	 * renders earlier in the page (a sidebar widget, a shortcode in the
+	 * content) — but only on pages that can actually show a switcher, so
+	 * pages with none of the placements below don't pay for CSS they'll
+	 * never use. This is necessarily a best-effort check run before the
+	 * page has actually rendered: the floating widget and the nav-menu
+	 * injection can appear on literally any page once turned on (a
+	 * template part, not tied to one post), so those two settings being
+	 * enabled always counts as "needed" here, while the shortcode/block/
+	 * widget placements can be checked precisely via has_shortcode(),
+	 * has_block(), and is_active_widget().
+	 */
+	public static function maybe_enqueue_styles(): void {
+		if ( ! self::pageLikelyNeedsAssets() ) {
+			return;
+		}
+
+		$suffix = self::assetSuffix();
+		wp_enqueue_style( 'wcmcs-currency-switcher', WCMCS_URL . "assets/css/currency-switcher{$suffix}.css", array(), WCMCS_VERSION );
+	}
+
+	private static function pageLikelyNeedsAssets(): bool {
+		if ( ! empty( get_option( 'wcmcs_floating_widget_enabled' ) ) ) {
+			return true;
+		}
+
+		if ( '' !== (string) get_option( 'wcmcs_menu_location', '' ) ) {
+			return true;
+		}
+
+		$post = get_post();
+
+		if ( $post instanceof \WP_Post ) {
+			if ( has_shortcode( $post->post_content, Shortcode::TAG ) ) {
+				return true;
+			}
+
+			if ( function_exists( 'has_block' ) && has_block( Block::NAME, $post ) ) {
+				return true;
+			}
+		}
+
+		if ( is_active_widget( false, false, 'wcmcs_currency_switcher', true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -44,7 +95,8 @@ class FrontendHooks {
 			return;
 		}
 
-		wp_enqueue_script( 'wcmcs-currency-switcher', WCMCS_URL . 'assets/js/currency-switcher.js', array(), WCMCS_VERSION, true );
+		$suffix = self::assetSuffix();
+		wp_enqueue_script( 'wcmcs-currency-switcher', WCMCS_URL . "assets/js/currency-switcher{$suffix}.js", array(), WCMCS_VERSION, true );
 
 		wp_localize_script(
 			'wcmcs-currency-switcher',

@@ -356,6 +356,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'wcmcs currency', \WCMCS\Cli\CurrencyCommand::class );
 			\WP_CLI::add_command( 'wcmcs rate', \WCMCS\Cli\RateCommand::class );
 			\WP_CLI::add_command( 'wcmcs settings', \WCMCS\Cli\SettingsCommand::class );
+			\WP_CLI::add_command( 'wcmcs diagnostics', \WCMCS\Cli\DiagnosticsCommand::class );
 		}
 	}
 

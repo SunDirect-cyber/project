@@ -55,7 +55,8 @@ class GeoSuggestionController {
 		$currency         = $currencyService->get( $suggestion['currency'] );
 		$currencyLabel    = $currency instanceof Currency ? sprintf( '%s (%s)', $currency->name(), $currency->code() ) : $suggestion['currency'];
 
-		wp_enqueue_script( 'wcmcs-geo-suggestion', WCMCS_URL . 'assets/js/geo-suggestion.js', array(), WCMCS_VERSION, true );
+		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		wp_enqueue_script( 'wcmcs-geo-suggestion', WCMCS_URL . "assets/js/geo-suggestion{$suffix}.js", array(), WCMCS_VERSION, true );
 		wp_localize_script(
 			'wcmcs-geo-suggestion',
 			'wcmcsGeoSuggestion',
