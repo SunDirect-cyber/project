@@ -24,6 +24,20 @@ class CurrencyRuleRepository {
 	public const TYPE_ROUNDING       = 'rounding';
 	public const TYPE_RATE_BOUNDS    = 'rate_bounds';
 
+	/**
+	 * get() is the hot path — PriceConverter calls it (indirectly, via
+	 * PricingRuleService) for every single product price on a page, so a
+	 * shop page of 20 products would otherwise run dozens of identical
+	 * queries for the same currency's rounding/markup/lock rule. This
+	 * instance persists for the lifetime of the request (the DI
+	 * container only ever builds one), so a plain in-memory cache here
+	 * is enough to turn "N queries" into "one query per (currency,
+	 * rule_type) actually asked about, ever, per request".
+	 *
+	 * @var array<string, array|null>
+	 */
+	private array $cache = array();
+
 	private function table(): string {
 		global $wpdb;
 
@@ -36,6 +50,12 @@ class CurrencyRuleRepository {
 	public function get( string $currency, string $ruleType ): ?array {
 		global $wpdb;
 
+		$cacheKey = strtoupper( $currency ) . '_' . $ruleType;
+
+		if ( array_key_exists( $cacheKey, $this->cache ) ) {
+			return $this->cache[ $cacheKey ];
+		}
+
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT id, currency, rule_type, rule_value, priority, is_active FROM {$this->table()} WHERE currency = %s AND rule_type = %s AND is_active = 1 ORDER BY priority DESC, id DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -46,10 +66,11 @@ class CurrencyRuleRepository {
 		);
 
 		if ( ! $row ) {
+			$this->cache[ $cacheKey ] = null;
 			return null;
 		}
 
-		return array(
+		$this->cache[ $cacheKey ] = array(
 			'id'         => (int) $row['id'],
 			'currency'   => (string) $row['currency'],
 			'rule_type'  => (string) $row['rule_type'],
@@ -57,6 +78,8 @@ class CurrencyRuleRepository {
 			'priority'   => (int) $row['priority'],
 			'is_active'  => (bool) $row['is_active'],
 		);
+
+		return $this->cache[ $cacheKey ];
 	}
 
 	public function upsert( string $currency, string $ruleType, string $value, int $priority = 10 ): void {
@@ -77,6 +100,7 @@ class CurrencyRuleRepository {
 				array( '%s', '%d', '%s' ),
 				array( '%d' )
 			);
+			$this->forget( $currency, $ruleType );
 			return;
 		}
 
@@ -93,6 +117,7 @@ class CurrencyRuleRepository {
 			),
 			array( '%s', '%s', '%s', '%d', '%d', '%s', '%s' )
 		);
+		$this->forget( $currency, $ruleType );
 	}
 
 	public function remove( string $currency, string $ruleType ): void {
@@ -106,6 +131,11 @@ class CurrencyRuleRepository {
 			),
 			array( '%s', '%s' )
 		);
+		$this->forget( $currency, $ruleType );
+	}
+
+	private function forget( string $currency, string $ruleType ): void {
+		unset( $this->cache[ strtoupper( $currency ) . '_' . $ruleType ] );
 	}
 
 	/**

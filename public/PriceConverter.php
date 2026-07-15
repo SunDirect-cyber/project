@@ -77,6 +77,24 @@ if ( ! defined( 'ABSPATH' ) ) {
  *    or apply the 'wcmcs_convert_price' filter, to convert an arbitrary
  *    number using the exact same rate + rounding rules as everything
  *    else here, rather than each integration reinventing conversion.
+ *
+ * Performance: a shop/category page loop of dozens of products was the
+ * actual N+1 risk here — not from any external API call (there isn't
+ * one on this path), but from CurrencyRuleRepository re-querying the
+ * database for the same currency's markup/rounding/lock rule on every
+ * single price read. Two things close that off: the exchange rate is
+ * resolved once per request (effectiveRate()'s memo, below) rather than
+ * once per price, and CurrencyRuleRepository itself now memoizes its
+ * own lookups per request too — so a 20-product shop page runs at most
+ * one rate lookup and one rule lookup per rule type, total, not one of
+ * each per product. convertAndRound() additionally caches the final
+ * converted+rounded result *across* requests (cache_service, below),
+ * so repeat visitors in the same currency reuse a previous computation
+ * outright. There's deliberately no separate "batch convert this whole
+ * product list in one query" step beyond that: once the rate and rules
+ * are each resolved exactly once, converting each individual product's
+ * price is pure in-memory arithmetic (amount * rate, then round) with
+ * no further database or network access per product to batch away.
  */
 class PriceConverter {
 
@@ -314,10 +332,39 @@ class PriceConverter {
 			return $original;
 		}
 
-		/** @var \WCMCS\Services\CurrencyRule\PricingRuleService $pricingRules */
-		$pricingRules = Plugin::instance()->container()->get( 'pricing_rule_service' );
+		// Cross-request cache: conversion is a pure function of (amount,
+		// currency, rate, rounding config) — every one of those is stable
+		// for the TTL below, so two different shoppers viewing the same
+		// price in the same currency reuse one cached result instead of
+		// each separately hitting the rounding-rule lookup and redoing
+		// the arithmetic. Keyed by the raw amount rather than a product
+		// ID: two products that happen to share a price correctly share
+		// a cache entry too, since the result only ever depends on the
+		// number itself.
+		/** @var \WCMCS\Services\CacheService $cache */
+		$cache    = Plugin::instance()->container()->get( 'cache_service' );
+		$cacheKey = 'conv_' . $active . '_' . md5( (string) $amount );
 
-		return (string) $pricingRules->roundPrice( $active, $amount * $rate );
+		return $cache->remember(
+			$cacheKey,
+			self::cacheTtl(),
+			static function () use ( $amount, $rate, $active ) {
+				/** @var \WCMCS\Services\CurrencyRule\PricingRuleService $pricingRules */
+				$pricingRules = Plugin::instance()->container()->get( 'pricing_rule_service' );
+
+				return (string) $pricingRules->roundPrice( $active, $amount * $rate );
+			}
+		);
+	}
+
+	/**
+	 * Tied to the configured rate-refresh interval, same reasoning as
+	 * RateService's own cache TTL: a cached converted price shouldn't
+	 * outlive the next scheduled rate refresh, since the rate it was
+	 * computed from could be stale by then.
+	 */
+	private static function cacheTtl(): int {
+		return \WCMCS\Core\Cron::intervalToSeconds( \WCMCS\Core\Cron::currentIntervalSlug() );
 	}
 
 	/**
