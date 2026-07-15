@@ -94,7 +94,7 @@ class FrontendHooks {
 
 		/** @var CurrencySwitcherRenderer $renderer */
 		$renderer = Plugin::instance()->container()->get( 'currency_switcher_renderer' );
-		$style    = (string) get_option( 'wcmcs_floating_widget_style', CurrencySwitcherRenderer::STYLE_DROPDOWN );
+		$style    = (string) get_option( 'wcmcs_floating_widget_style', CurrencySwitcherRenderer::defaultStyle() );
 
 		$html = $renderer->render( array( 'style' => $style ) );
 
@@ -124,7 +124,7 @@ class FrontendHooks {
 
 		/** @var CurrencySwitcherRenderer $renderer */
 		$renderer = Plugin::instance()->container()->get( 'currency_switcher_renderer' );
-		$html     = $renderer->render( array( 'style' => CurrencySwitcherRenderer::STYLE_DROPDOWN ) );
+		$html     = $renderer->render( array( 'style' => CurrencySwitcherRenderer::defaultStyle() ) );
 
 		if ( '' === $html ) {
 			return $items;

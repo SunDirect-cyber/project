@@ -26,7 +26,7 @@ class Shortcode {
 	public static function render( $atts ): string {
 		$atts = shortcode_atts(
 			array(
-				'style'       => CurrencySwitcherRenderer::STYLE_DROPDOWN,
+				'style'       => CurrencySwitcherRenderer::defaultStyle(),
 				'show_flag'   => 'yes',
 				'show_code'   => 'yes',
 				'show_symbol' => 'no',

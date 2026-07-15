@@ -36,7 +36,7 @@ class CurrencySwitcherWidget extends \WP_Widget {
 
 		$html = $renderer->render(
 			array(
-				'style'       => $instance['style'] ?? CurrencySwitcherRenderer::STYLE_DROPDOWN,
+				'style'       => $instance['style'] ?? CurrencySwitcherRenderer::defaultStyle(),
 				'show_flag'   => ! empty( $instance['show_flag'] ),
 				'show_code'   => ! empty( $instance['show_code'] ) || ! isset( $instance['show_code'] ),
 				'show_symbol' => ! empty( $instance['show_symbol'] ),
@@ -64,7 +64,7 @@ class CurrencySwitcherWidget extends \WP_Widget {
 	 */
 	public function form( $instance ) {
 		$title      = $instance['title'] ?? '';
-		$style      = $instance['style'] ?? CurrencySwitcherRenderer::STYLE_DROPDOWN;
+		$style      = $instance['style'] ?? CurrencySwitcherRenderer::defaultStyle();
 		$show_flag  = ! empty( $instance['show_flag'] );
 		$show_code  = ! isset( $instance['show_code'] ) || ! empty( $instance['show_code'] );
 		$show_symbol = ! empty( $instance['show_symbol'] );

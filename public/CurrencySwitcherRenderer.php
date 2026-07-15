@@ -39,13 +39,25 @@ class CurrencySwitcherRenderer {
 	}
 
 	/**
+	 * The site-wide default style (Display & Behavior admin screen) —
+	 * what the widget, shortcode, and block all fall back to when
+	 * they're placed without an explicit style of their own.
+	 */
+	public static function defaultStyle(): string {
+		$style = (string) get_option( 'wcmcs_default_switcher_style', self::STYLE_DROPDOWN );
+		$valid = array( self::STYLE_DROPDOWN, self::STYLE_FLAG_GRID, self::STYLE_BUTTON_LIST );
+
+		return in_array( $style, $valid, true ) ? $style : self::STYLE_DROPDOWN;
+	}
+
+	/**
 	 * @param array{style?: string, show_flag?: bool, show_code?: bool, show_symbol?: bool, show_name?: bool, class?: string} $args
 	 */
 	public function render( array $args = array() ): string {
 		$args = wp_parse_args(
 			$args,
 			array(
-				'style'       => self::STYLE_DROPDOWN,
+				'style'       => self::defaultStyle(),
 				'show_flag'   => true,
 				'show_code'   => true,
 				'show_symbol' => false,

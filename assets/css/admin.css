@@ -268,3 +268,18 @@
 .wcmcs-status--error {
 	color: #a02222;
 }
+
+.wcmcs-display-settings .wcmcs-style-picker {
+	display: flex;
+	gap: 20px;
+	margin: 12px 0;
+}
+
+.wcmcs-display-settings .wcmcs-style-preview {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 20px;
+	max-width: 600px;
+	margin-bottom: 20px;
+}

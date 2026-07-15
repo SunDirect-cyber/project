@@ -23,8 +23,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * A null return means both signals failed — the caller should fall back
  * to the store's base currency.
+ *
+ * Which signal(s) actually run is store-configurable via
+ * 'wcmcs_auto_detection_mode' (the Display & Behavior admin screen):
+ * 'both' (default), 'geolocation' (skip the language fallback
+ * entirely), 'language' (skip WC_Geolocation entirely), or 'off'
+ * (auto-detection disabled — detect() always returns null, so
+ * CurrencyResolutionEngine falls straight through to the base currency
+ * unless the shopper picks one manually).
  */
 class GeoCountryDetector {
+
+	public const MODE_BOTH        = 'both';
+	public const MODE_GEOLOCATION = 'geolocation';
+	public const MODE_LANGUAGE    = 'language';
+	public const MODE_OFF         = 'off';
 
 	/**
 	 * A minimal language -> most-likely-country fallback, used only when
@@ -43,13 +56,32 @@ class GeoCountryDetector {
 	);
 
 	public function detect(): ?string {
-		$country = $this->fromWooCommerceGeolocation();
+		$mode = self::mode();
 
-		if ( null !== $country ) {
-			return $country;
+		if ( self::MODE_OFF === $mode ) {
+			return null;
 		}
 
-		return $this->fromAcceptLanguageHeader();
+		if ( in_array( $mode, array( self::MODE_BOTH, self::MODE_GEOLOCATION ), true ) ) {
+			$country = $this->fromWooCommerceGeolocation();
+
+			if ( null !== $country ) {
+				return $country;
+			}
+		}
+
+		if ( in_array( $mode, array( self::MODE_BOTH, self::MODE_LANGUAGE ), true ) ) {
+			return $this->fromAcceptLanguageHeader();
+		}
+
+		return null;
+	}
+
+	public static function mode(): string {
+		$mode  = (string) get_option( 'wcmcs_auto_detection_mode', self::MODE_BOTH );
+		$valid = array( self::MODE_BOTH, self::MODE_GEOLOCATION, self::MODE_LANGUAGE, self::MODE_OFF );
+
+		return in_array( $mode, $valid, true ) ? $mode : self::MODE_BOTH;
 	}
 
 	private function fromWooCommerceGeolocation(): ?string {

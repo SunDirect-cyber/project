@@ -37,7 +37,7 @@ class Block {
 			self::NAME,
 			array(
 				'attributes'      => array(
-					'style'      => array( 'type' => 'string', 'default' => CurrencySwitcherRenderer::STYLE_DROPDOWN ),
+					'style'      => array( 'type' => 'string', 'default' => CurrencySwitcherRenderer::defaultStyle() ),
 					'showFlag'   => array( 'type' => 'boolean', 'default' => true ),
 					'showCode'   => array( 'type' => 'boolean', 'default' => true ),
 					'showSymbol' => array( 'type' => 'boolean', 'default' => false ),
@@ -57,7 +57,7 @@ class Block {
 
 		return $renderer->render(
 			array(
-				'style'       => $attributes['style'] ?? CurrencySwitcherRenderer::STYLE_DROPDOWN,
+				'style'       => $attributes['style'] ?? CurrencySwitcherRenderer::defaultStyle(),
 				'show_flag'   => $attributes['showFlag'] ?? true,
 				'show_code'   => $attributes['showCode'] ?? true,
 				'show_symbol' => $attributes['showSymbol'] ?? false,
