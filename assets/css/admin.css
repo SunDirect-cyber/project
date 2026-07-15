@@ -112,3 +112,92 @@
 	flex-shrink: 0;
 	text-align: right;
 }
+
+.wcmcs-currency-management .wcmcs-currency-list {
+	max-width: 720px;
+	margin: 16px 0;
+}
+
+.wcmcs-currency-management .wcmcs-currency-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 8px 12px;
+	margin-bottom: 6px;
+	cursor: grab;
+}
+
+.wcmcs-currency-management .wcmcs-currency-row__handle {
+	color: #8c8f94;
+}
+
+.wcmcs-currency-management .wcmcs-currency-row__code {
+	font-weight: 600;
+	width: 44px;
+}
+
+.wcmcs-currency-management .wcmcs-currency-row__name {
+	flex: 1;
+	color: #646970;
+}
+
+.wcmcs-currency-management .wcmcs-currency-row__badge {
+	background: #f0f0f1;
+	border-radius: 3px;
+	padding: 2px 6px;
+	font-size: 11px;
+}
+
+.wcmcs-currency-management .wcmcs-currency-settings {
+	flex-basis: 100%;
+	border-top: 1px solid #dcdcde;
+	margin-top: 8px;
+	padding-top: 10px;
+}
+
+.wcmcs-currency-management .wcmcs-currency-settings__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.wcmcs-currency-management .wcmcs-currency-settings__grid label {
+	display: flex;
+	flex-direction: column;
+	font-size: 12px;
+	gap: 3px;
+}
+
+.wcmcs-currency-management .wcmcs-available-list {
+	max-width: 720px;
+	max-height: 320px;
+	overflow-y: auto;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 8px 12px;
+	margin: 12px 0;
+	background: #fff;
+	columns: 3;
+}
+
+.wcmcs-currency-management .wcmcs-available-item {
+	display: block;
+	padding: 3px 0;
+	break-inside: avoid;
+}
+
+.wcmcs-currency-management .wcmcs-status {
+	margin-left: 8px;
+	color: #646970;
+	font-style: italic;
+}
+
+.wcmcs-currency-management #wcmcs-preview-results {
+	max-width: 480px;
+	margin-top: 12px;
+}

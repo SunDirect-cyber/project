@@ -239,7 +239,10 @@ final class Plugin {
 
 		\WCMCS\Admin\RateAjaxController::register();
 		\WCMCS\Admin\RateHistoryAjaxController::register();
+		\WCMCS\Admin\CurrencyManagementAjaxController::register();
 		\WCMCS\Admin\AdminMenu::register();
+
+		\WCMCS\Services\Currency\CurrencyOverrideService::register();
 
 		\WCMCS\Frontend\CurrencySwitcherWidget::register();
 		\WCMCS\Frontend\Shortcode::register();
