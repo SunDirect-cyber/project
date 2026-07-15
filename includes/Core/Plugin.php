@@ -304,6 +304,7 @@ final class Plugin {
 		);
 
 		\WCMCS\Admin\ImportExportPage::register();
+		\WCMCS\Admin\CurrencyImpactPage::register();
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'wcmcs currency', \WCMCS\Cli\CurrencyCommand::class );

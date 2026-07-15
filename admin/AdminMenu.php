@@ -23,6 +23,7 @@ class AdminMenu {
 	public const SLUG_IMPORT_EXPORT  = 'wcmcs-import-export';
 	public const SLUG_ACTIVITY_LOG   = 'wcmcs-activity-log';
 	public const SLUG_ANALYTICS      = 'wcmcs-analytics';
+	public const SLUG_CURRENCY_IMPACT = 'wcmcs-currency-impact';
 
 	private static string $exchangeRatesHook = '';
 
@@ -105,6 +106,15 @@ class AdminMenu {
 			self::CAPABILITY,
 			self::SLUG_ANALYTICS,
 			array( AnalyticsPage::class, 'render' )
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'Currency Impact', 'wc-multicurrency-switcher' ),
+			__( 'Currency Impact', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			self::SLUG_CURRENCY_IMPACT,
+			array( CurrencyImpactPage::class, 'render' )
 		);
 
 		add_submenu_page(
