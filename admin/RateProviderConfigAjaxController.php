@@ -2,6 +2,7 @@
 namespace WCMCS\Admin;
 
 use WCMCS\Core\Cron;
+use WCMCS\Core\EncryptionService;
 use WCMCS\Core\Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -43,8 +44,12 @@ class RateProviderConfigAjaxController {
 		$keysChanged = array();
 
 		foreach ( self::KEY_OPTIONS as $slug => $optionName ) {
-			if ( isset( $post[ 'key_' . $slug ] ) ) {
-				update_option( $optionName, sanitize_text_field( $post[ 'key_' . $slug ] ) );
+			// A blank submitted value means "leave the existing key alone"
+			// (the settings page never echoes the real key back into the
+			// field, so an unrelated save with the field left empty must
+			// not wipe a previously-configured key).
+			if ( isset( $post[ 'key_' . $slug ] ) && '' !== trim( sanitize_text_field( $post[ 'key_' . $slug ] ) ) ) {
+				EncryptionService::encryptedUpdateOption( $optionName, sanitize_text_field( $post[ 'key_' . $slug ] ) );
 				$keysChanged[] = $slug;
 			}
 		}

@@ -1,6 +1,8 @@
 <?php
 namespace WCMCS\Services\ExchangeRate\Providers;
 
+use WCMCS\Core\EncryptionService;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -28,7 +30,7 @@ class ExchangeRateApiProvider extends AbstractApiRateProvider {
 	public function getRate( string $base, string $target ): ?float {
 		$base   = strtoupper( $base );
 		$target = strtoupper( $target );
-		$key    = trim( (string) get_option( 'wcmcs_provider_exchangerateapi_key', '' ) );
+		$key    = EncryptionService::getDecryptedOption( 'wcmcs_provider_exchangerateapi_key' );
 
 		if ( '' !== $key ) {
 			$data = $this->fetchJson( sprintf( 'https://v6.exchangerate-api.com/v6/%s/pair/%s/%s', rawurlencode( $key ), $base, $target ) );

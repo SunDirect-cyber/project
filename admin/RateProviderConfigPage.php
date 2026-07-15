@@ -2,6 +2,7 @@
 namespace WCMCS\Admin;
 
 use WCMCS\Core\Cron;
+use WCMCS\Core\EncryptionService;
 use WCMCS\Core\Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -116,7 +117,11 @@ class RateProviderConfigPage {
 					<?php
 					$slug        = $provider->getSourceName();
 					$needsKey    = isset( self::KEY_OPTIONS[ $slug ] );
-					$currentKey  = $needsKey ? (string) get_option( self::KEY_OPTIONS[ $slug ], '' ) : '';
+					// Never echo the real (decrypted) key back into the page
+					// source — only whether one is already set, so the
+					// password field can show a masked placeholder instead
+					// of the live secret.
+					$hasKey      = $needsKey && '' !== EncryptionService::getDecryptedOption( self::KEY_OPTIONS[ $slug ] );
 					?>
 					<li class="wcmcs-provider-row" draggable="true" data-slug="<?php echo esc_attr( $slug ); ?>">
 						<span class="wcmcs-provider-row__handle" aria-hidden="true">&#9776;</span>
@@ -125,7 +130,7 @@ class RateProviderConfigPage {
 							<?php echo $provider->isConfigured() ? '✓ ' . esc_html__( 'Configured', 'wc-multicurrency-switcher' ) : '— ' . esc_html__( 'No key', 'wc-multicurrency-switcher' ); ?>
 						</span>
 						<?php if ( $needsKey ) : ?>
-							<input type="password" class="regular-text" placeholder="<?php esc_attr_e( 'API key', 'wc-multicurrency-switcher' ); ?>" value="<?php echo esc_attr( $currentKey ); ?>" data-wcmcs-key="<?php echo esc_attr( $slug ); ?>">
+							<input type="password" class="regular-text" placeholder="<?php echo esc_attr( $hasKey ? __( '•••••••• (key set — leave blank to keep it)', 'wc-multicurrency-switcher' ) : __( 'API key', 'wc-multicurrency-switcher' ) ); ?>" value="" autocomplete="off" data-wcmcs-key="<?php echo esc_attr( $slug ); ?>">
 						<?php endif; ?>
 						<button type="button" class="button" data-wcmcs-test="<?php echo esc_attr( $slug ); ?>"><?php esc_html_e( 'Test Connection', 'wc-multicurrency-switcher' ); ?></button>
 						<span class="wcmcs-status" data-wcmcs-test-result="<?php echo esc_attr( $slug ); ?>"></span>

@@ -1,6 +1,8 @@
 <?php
 namespace WCMCS\Services\ExchangeRate\Providers;
 
+use WCMCS\Core\EncryptionService;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -19,7 +21,7 @@ class OpenExchangeRatesProvider extends AbstractApiRateProvider {
 	}
 
 	public function isConfigured(): bool {
-		return '' !== trim( (string) get_option( 'wcmcs_provider_openexchangerates_key', '' ) );
+		return '' !== EncryptionService::getDecryptedOption( 'wcmcs_provider_openexchangerates_key' );
 	}
 
 	public function getRate( string $base, string $target ): ?float {
@@ -27,7 +29,7 @@ class OpenExchangeRatesProvider extends AbstractApiRateProvider {
 			return null;
 		}
 
-		$key  = trim( (string) get_option( 'wcmcs_provider_openexchangerates_key', '' ) );
+		$key  = EncryptionService::getDecryptedOption( 'wcmcs_provider_openexchangerates_key' );
 		$url  = sprintf(
 			'https://openexchangerates.org/api/latest.json?app_id=%s&base=%s&symbols=%s',
 			rawurlencode( $key ),

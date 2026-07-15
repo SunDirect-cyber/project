@@ -62,7 +62,14 @@ class SettingsPortability {
 
 		if ( $includeApiKeys ) {
 			foreach ( self::KEY_OPTIONS as $name ) {
-				$value = get_option( $name, '' );
+				// Exported as-stored (still encrypted) — never decrypted to
+				// plaintext here, so the export file itself can't leak a
+				// usable secret even when "include API keys" is checked.
+				// It only decrypts again on import into a site whose
+				// AUTH_KEY/AUTH_SALT already produce the same key (i.e.
+				// this same site); a cross-site import of an encrypted key
+				// simply won't decrypt, which is safe, expected behaviour.
+				$value = (string) get_option( $name, '' );
 
 				if ( '' !== $value ) {
 					$options[ $name ] = $value;

@@ -237,10 +237,21 @@
 					.then( function ( r ) { return r.json(); } )
 					.then( function ( response ) {
 						if ( status ) {
-							status.textContent = response.success ? config.i18n.refreshDone : config.i18n.refreshFailed;
+							// Prefer the server's own message when present —
+							// this is what carries the rate-limit "please
+							// wait Ns" text back to the admin instead of a
+							// generic failure string.
+							status.textContent = response.success
+								? config.i18n.refreshDone
+								: ( response.data && response.data.message ? response.data.message : config.i18n.refreshFailed );
 						}
 						if ( response.success ) {
 							loadHistory();
+						} else if ( response.data && response.data.retry_after ) {
+							refreshBtn.disabled = true;
+							setTimeout( function () {
+								refreshBtn.disabled = false;
+							}, response.data.retry_after * 1000 );
 						}
 					} )
 					.catch( function () {

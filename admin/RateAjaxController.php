@@ -3,6 +3,7 @@ namespace WCMCS\Admin;
 
 use WCMCS\Core\Plugin;
 use WCMCS\Core\RateFailureMonitor;
+use WCMCS\Core\RateLimiter;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,6 +20,12 @@ class RateAjaxController {
 	private const ACTION = 'wcmcs_refresh_rates';
 	private const NONCE  = 'wcmcs_refresh_rates_nonce';
 
+	// One manual refresh per user per this many seconds — generous enough
+	// for legitimate use (nobody needs to refresh live rates faster than
+	// this) while preventing spam-clicking from burning through a metered
+	// provider's daily API quota.
+	private const RATE_LIMIT_WINDOW = 30;
+
 	public static function register(): void {
 		add_action( 'wp_ajax_' . self::ACTION, array( self::class, 'handle' ) );
 	}
@@ -29,6 +36,22 @@ class RateAjaxController {
 		}
 
 		check_ajax_referer( self::ACTION, self::NONCE );
+
+		if ( ! RateLimiter::attempt( self::ACTION, get_current_user_id(), self::RATE_LIMIT_WINDOW ) ) {
+			$retryAfter = RateLimiter::retryAfter( self::ACTION, get_current_user_id(), self::RATE_LIMIT_WINDOW );
+
+			wp_send_json_error(
+				array(
+					'message'     => sprintf(
+						/* translators: %d: seconds until the action may be retried */
+						__( 'Rates were just refreshed — please wait %d seconds before trying again.', 'wc-multicurrency-switcher' ),
+						$retryAfter
+					),
+					'retry_after' => $retryAfter,
+				),
+				429
+			);
+		}
 
 		$container = Plugin::instance()->container();
 

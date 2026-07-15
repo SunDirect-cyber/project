@@ -57,7 +57,9 @@ function wcmcs_uninstall_single_site(): void {
 		delete_option( $option );
 	}
 
-	// Day-bucketed stats counters and transients (including timeout siblings).
+	// Day-bucketed stats counters and transients (including timeout
+	// siblings — this also covers the rate-limiter's own 'wcmcs_rl_*'
+	// transients, since they share the '_transient_wcmcs_' prefix).
 	$wpdb->query(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_wcmcs\\_%' OR option_name LIKE '\\_transient\\_timeout\\_wcmcs\\_%' OR option_name LIKE 'wcmcs\\_stats\\_conversions\\_%'"
 	);
