@@ -48,13 +48,22 @@ class CurrencyManagementAjaxController {
 			? array_map( static fn ( $c ) => strtoupper( sanitize_text_field( $c ) ), $_POST['currencies'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			: array();
 
-		$valid = array_values( array_filter( array_unique( $submitted ), static fn ( $code ) => $repo->exists( $code ) ) );
+		$valid    = array_values( array_filter( array_unique( $submitted ), static fn ( $code ) => $repo->exists( $code ) ) );
+		$previous = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
+		$added    = array_diff( $valid, $previous );
 
 		update_option( 'wcmcs_enabled_currencies', $valid );
 
 		/** @var \WCMCS\Services\ActivityLogger $activity */
 		$activity = Plugin::instance()->container()->get( 'activity_logger' );
 		$activity->record( 'Updated enabled currencies', array( 'currencies' => $valid ) );
+
+		/** @var \WCMCS\Services\WebhookService $webhooks */
+		$webhooks = Plugin::instance()->container()->get( 'webhook_service' );
+
+		foreach ( $added as $newCurrency ) {
+			$webhooks->trigger( \WCMCS\Services\WebhookService::EVENT_CURRENCY_ADDED, array( 'currency' => $newCurrency ) );
+		}
 
 		wp_send_json_success( array( 'currencies' => $valid ) );
 	}

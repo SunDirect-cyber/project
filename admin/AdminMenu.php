@@ -27,6 +27,8 @@ class AdminMenu {
 	public const SLUG_GEO_INSIGHTS    = 'wcmcs-geo-insights';
 	public const SLUG_RATE_CORRELATION = 'wcmcs-rate-correlation';
 	public const SLUG_NOTIFICATIONS    = 'wcmcs-notifications';
+	public const SLUG_WEBHOOKS         = 'wcmcs-webhooks';
+	public const SLUG_API_ACCESS       = 'wcmcs-api-access';
 
 	private static string $exchangeRatesHook = '';
 
@@ -145,6 +147,24 @@ class AdminMenu {
 			self::CAPABILITY,
 			self::SLUG_NOTIFICATIONS,
 			array( NotificationSettingsPage::class, 'render' )
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'Webhooks', 'wc-multicurrency-switcher' ),
+			__( 'Webhooks', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			self::SLUG_WEBHOOKS,
+			array( WebhooksPage::class, 'render' )
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'API Access', 'wc-multicurrency-switcher' ),
+			__( 'API Access', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			self::SLUG_API_ACCESS,
+			array( ApiAccessPage::class, 'render' )
 		);
 
 		add_submenu_page(

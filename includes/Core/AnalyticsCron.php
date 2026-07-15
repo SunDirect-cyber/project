@@ -89,10 +89,6 @@ class AnalyticsCron {
 	}
 
 	private static function maybeSendAnomalyAlert( Plugin $plugin ): void {
-		if ( empty( get_option( 'wcmcs_notification_anomaly_alerts', false ) ) ) {
-			return;
-		}
-
 		$enabledCurrencies = (array) get_option( 'wcmcs_enabled_currencies', array() );
 
 		if ( empty( $enabledCurrencies ) ) {
@@ -111,8 +107,22 @@ class AnalyticsCron {
 			return;
 		}
 
-		/** @var \WCMCS\Services\Analytics\NotificationService $notifications */
-		$notifications = $plugin->container()->get( 'notification_service' );
-		$notifications->sendAnomalyAlert( array( 'conversion_drops' => $drops, 'zero_sales' => $zeroSales ) );
+		// Email is opt-in (the 'anomaly alerts' toggle); the webhook
+		// fires regardless, since registering one for this event is
+		// itself an explicit opt-in separate from the email setting.
+		if ( ! empty( get_option( 'wcmcs_notification_anomaly_alerts', false ) ) ) {
+			/** @var \WCMCS\Services\Analytics\NotificationService $notifications */
+			$notifications = $plugin->container()->get( 'notification_service' );
+			$notifications->sendAnomalyAlert( array( 'conversion_drops' => $drops, 'zero_sales' => $zeroSales ) );
+		}
+
+		if ( $plugin->container()->has( 'webhook_service' ) ) {
+			/** @var \WCMCS\Services\WebhookService $webhooks */
+			$webhooks = $plugin->container()->get( 'webhook_service' );
+			$webhooks->trigger(
+				\WCMCS\Services\WebhookService::EVENT_ANOMALY_DETECTED,
+				array( 'conversion_drops' => $drops, 'zero_sales' => $zeroSales )
+			);
+		}
 	}
 }

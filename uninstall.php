@@ -50,6 +50,7 @@ function wcmcs_uninstall_single_site(): void {
 		'wcmcs_notification_summary_frequency',
 		'wcmcs_notification_anomaly_alerts',
 		'wcmcs_last_summary_sent_at',
+		'wcmcs_webhooks',
 	);
 
 	foreach ( $options as $option ) {

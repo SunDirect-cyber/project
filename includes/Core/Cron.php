@@ -111,6 +111,20 @@ class Cron {
 		update_option( 'wcmcs_last_cron_run_at', time() );
 		update_option( 'wcmcs_last_cron_result', empty( $results ) ? 'skipped' : ( $anySuccess ? 'success' : 'failure' ) );
 
+		if ( $plugin->container()->has( 'webhook_service' ) ) {
+			/** @var \WCMCS\Services\WebhookService $webhooks */
+			$webhooks = $plugin->container()->get( 'webhook_service' );
+
+			foreach ( $results as $currency => $result ) {
+				if ( null !== $result['rate'] ) {
+					$webhooks->trigger(
+						\WCMCS\Services\WebhookService::EVENT_RATE_UPDATED,
+						array( 'base' => $base, 'currency' => $currency, 'rate' => $result['rate'], 'source' => $result['source'] )
+					);
+				}
+			}
+		}
+
 		/** @var \WCMCS\Core\RateFailureMonitor $monitor */
 		$monitor = $plugin->container()->get( 'rate_failure_monitor' );
 		$monitor->recordRefreshResult( $results );

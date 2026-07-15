@@ -287,6 +287,11 @@ final class Plugin {
 			)
 		);
 
+		$this->container->set(
+			'webhook_service',
+			static fn () => new \WCMCS\Services\WebhookService()
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 
 		Cron::register();
@@ -298,6 +303,8 @@ final class Plugin {
 		\WCMCS\Admin\RateProviderConfigAjaxController::register();
 		\WCMCS\Admin\AnalyticsAjaxController::register();
 		\WCMCS\Admin\RateCorrelationAjaxController::register();
+		\WCMCS\Api\RestController::register();
+		\WCMCS\Admin\WebhooksAjaxController::register();
 		\WCMCS\Admin\AdminMenu::register();
 
 		\WCMCS\Services\Currency\CurrencyOverrideService::register();
