@@ -22,8 +22,13 @@ class GeographicInsightsPage {
 
 		wp_enqueue_style( 'wcmcs-admin', WCMCS_URL . 'assets/css/admin.css', array(), WCMCS_VERSION );
 
-		$from = isset( $_GET['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['from'] ) ? sanitize_text_field( $_GET['from'] ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$to   = isset( $_GET['to'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['to'] ) ? sanitize_text_field( $_GET['to'] ) : gmdate( 'Y-m-d' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// The underlying report reads wcmcs_currency_events, whose
+		// created_at is written in site-local time (see EventTracker) —
+		// so the default range needs to match that, not UTC, or the
+		// default "last 30 days" would silently drop or include an extra
+		// day's worth of events depending on the site's UTC offset.
+		$from = isset( $_GET['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['from'] ) ? sanitize_text_field( $_GET['from'] ) : gmdate( 'Y-m-d', current_time( 'timestamp' ) - ( 30 * DAY_IN_SECONDS ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$to   = isset( $_GET['to'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['to'] ) ? sanitize_text_field( $_GET['to'] ) : gmdate( 'Y-m-d', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		/** @var \WCMCS\Services\Analytics\GeographicInsightsReport $report */
 		$report = Plugin::instance()->container()->get( 'geographic_insights_report' );

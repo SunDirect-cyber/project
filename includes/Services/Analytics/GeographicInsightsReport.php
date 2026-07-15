@@ -122,7 +122,12 @@ class GeographicInsightsReport {
 	public function abandonment( string $fromDate, string $toDate, int $minAgeHours = 48 ): array {
 		global $wpdb;
 
-		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$minAgeHours} hours" ) );
+		// EventTracker writes created_at via current_time( 'mysql' ) —
+		// site-local time, not UTC — so the cutoff has to be computed the
+		// same way. Using gmdate()/strtotime() (UTC) here would be off by
+		// exactly the site's UTC offset for any store not physically in
+		// UTC, silently widening or narrowing the "abandoned" window.
+		$cutoff = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - ( $minAgeHours * HOUR_IN_SECONDS ) );
 
 		$switches = $wpdb->get_results(
 			$wpdb->prepare(

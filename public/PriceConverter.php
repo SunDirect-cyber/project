@@ -152,6 +152,33 @@ class PriceConverter {
 		// so switching the setting takes effect without a page reload of
 		// hook registration.
 		add_filter( 'woocommerce_get_price_html', array( self::class, 'append_display_equivalent' ), 10, 2 );
+
+		// WooCommerce's decimal count is a single sitewide option
+		// ('woocommerce_price_num_decimals', normally 2) — without this
+		// filter, switching currency via 'woocommerce_currency' above
+		// would still format a zero-decimal currency like JPY as
+		// "¥100.00" and a three-decimal one like BHD as "د.ب10.500"
+		// instead of "د.ب10.500" — i.e. this is the fix for exactly the
+		// "must not show ¥100.00" edge case, not a cosmetic nicety.
+		add_filter( 'wc_get_price_decimals', array( self::class, 'filter_price_decimals' ) );
+	}
+
+	public static function filter_price_decimals( int $decimals ): int {
+		if ( ! self::shouldApply() ) {
+			return $decimals;
+		}
+
+		$active = self::activeCurrency();
+
+		if ( null === $active || $active === self::baseCurrency() ) {
+			return $decimals;
+		}
+
+		/** @var \WCMCS\Services\CurrencyService $currencyService */
+		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
+		$currency         = $currencyService->get( $active );
+
+		return null !== $currency ? $currency->decimals() : $decimals;
 	}
 
 	public const TAX_MODE_CONVERT_THEN_TAX = 'convert_then_tax';
@@ -365,8 +392,26 @@ class PriceConverter {
 			static function () use ( $amount, $rate, $active ) {
 				/** @var \WCMCS\Services\CurrencyRule\PricingRuleService $pricingRules */
 				$pricingRules = Plugin::instance()->container()->get( 'pricing_rule_service' );
+				/** @var \WCMCS\Services\CurrencyService $currencyService */
+				$currencyService = Plugin::instance()->container()->get( 'currency_service' );
 
-				return (string) $pricingRules->roundPrice( $active, $amount * $rate );
+				$rounded = $pricingRules->roundPrice( $active, $amount * $rate );
+
+				// The psychological-pricing rule above (nearest/charm/none)
+				// operates on the raw converted number and doesn't know this
+				// currency's actual precision — MODE_NONE in particular
+				// returns the raw float untouched. Rounding to the
+				// currency's real decimal count here, as the final step, is
+				// what stops a zero-decimal currency like JPY from carrying
+				// invisible fractional yen into cart/order math (which would
+				// otherwise silently drift from what the rounded display
+				// price shows), and stops a three-decimal currency like BHD
+				// from losing its third decimal to a naive two-decimal
+				// assumption elsewhere.
+				$targetCurrency = $currencyService->get( $active );
+				$decimals       = null !== $targetCurrency ? $targetCurrency->decimals() : 2;
+
+				return (string) round( $rounded, $decimals );
 			}
 		);
 	}

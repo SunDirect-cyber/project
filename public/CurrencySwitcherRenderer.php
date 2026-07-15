@@ -104,7 +104,44 @@ class CurrencySwitcherRenderer {
 
 		$method = 'render_' . $style;
 
-		return $this->$method( $options, $currentCode, $args );
+		// The primary markup below is JS-driven (its click/change handlers
+		// live in currency-switcher.js) — with JS disabled it would render
+		// but be entirely unclickable, making currency switching silently
+		// impossible for that visitor even though every price on the page
+		// is already correctly server-rendered. <noscript> is a real
+		// browser mechanism (not just a convention): its contents are
+		// parsed and shown only when scripting is off, so this fallback
+		// costs JS-enabled visitors nothing while giving JS-disabled ones
+		// working, plain ?currency= links (see UrlCurrencyOverride) to
+		// switch with instead.
+		return $this->$method( $options, $currentCode, $args ) . $this->render_noscript_fallback( $options, $currentCode );
+	}
+
+	/**
+	 * @param array{code: string, name: string, symbol: string}[] $options
+	 */
+	private function render_noscript_fallback( array $options, string $current ): string {
+		$currentUrl = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+
+		ob_start();
+		?>
+		<noscript>
+			<!-- Only ever rendered by the browser when JS is disabled — hides
+			     the (otherwise unclickable, JS-driven) widget above and shows
+			     these plain links instead. -->
+			<style>.wcmcs-switcher--dropdown,.wcmcs-switcher--buttons,.wcmcs-switcher--flag-grid{display:none}</style>
+			<ul class="wcmcs-switcher wcmcs-switcher--noscript">
+				<?php foreach ( $options as $option ) : ?>
+					<li>
+						<a href="<?php echo esc_url( add_query_arg( 'currency', $option['code'], $currentUrl ) ); ?>"<?php echo $option['code'] === $current ? ' aria-current="true"' : ''; ?>>
+							<?php echo esc_html( $option['code'] ); ?>
+						</a>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</noscript>
+		<?php
+		return (string) ob_get_clean();
 	}
 
 	/**

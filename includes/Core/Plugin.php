@@ -324,6 +324,8 @@ final class Plugin {
 		\WCMCS\Frontend\GeoSuggestionController::register();
 
 		MultilingualCompat::register();
+		PluginConflictDetector::register();
+		BaseCurrencyChangeGuard::register();
 		CapabilityManager::register();
 
 		$container = $this->container;

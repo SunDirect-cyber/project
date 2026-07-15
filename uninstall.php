@@ -51,6 +51,7 @@ function wcmcs_uninstall_single_site(): void {
 		'wcmcs_notification_anomaly_alerts',
 		'wcmcs_last_summary_sent_at',
 		'wcmcs_webhooks',
+		'wcmcs_base_currency_history',
 	);
 
 	foreach ( $options as $option ) {

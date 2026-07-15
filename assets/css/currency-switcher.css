@@ -98,6 +98,23 @@
 	align-items: center;
 }
 
+.wcmcs-switcher--noscript {
+	display: inline-flex;
+	list-style: none;
+	gap: 0.5em;
+	margin: 0;
+	padding: 0;
+}
+
+.wcmcs-switcher--noscript a {
+	text-decoration: underline;
+}
+
+.wcmcs-switcher--noscript a[aria-current="true"] {
+	font-weight: 600;
+	text-decoration: none;
+}
+
 .wcmcs-geo-modal {
 	position: fixed;
 	inset: 0;

@@ -33,6 +33,22 @@ class CacheService {
 	}
 
 	/**
+	 * Clears every transient this plugin has ever set, regardless of key
+	 * — used when something invalidates a whole category of cached data
+	 * at once rather than one known key (e.g. the store's base currency
+	 * changing, which makes every cached converted price stale
+	 * simultaneously). Mirrors the same LIKE-based cleanup uninstall.php
+	 * already does, just without dropping the plugin's own settings too.
+	 */
+	public function flushAll(): void {
+		global $wpdb;
+
+		$wpdb->query(
+			"DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_" . self::PREFIX . "%' OR option_name LIKE '\\_transient\\_timeout\\_" . self::PREFIX . "%'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
+	}
+
+	/**
 	 * Returns the cached value for $key, or computes it via $callback,
 	 * caches it, and returns it if nothing was cached yet (or the cached
 	 * value was false — a transient that expired or was never set).

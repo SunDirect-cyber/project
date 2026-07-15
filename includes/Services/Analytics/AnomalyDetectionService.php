@@ -84,6 +84,12 @@ class AnomalyDetectionService {
 		$totals = $this->statsRepository->totalsByCurrency( $from, $to );
 		$events = $wpdb->prefix . 'wcmcs_currency_events';
 
+		// wcmcs_currency_events.created_at is written via current_time()
+		// (site-local), unlike stat_date above (a UTC day bucket, matching
+		// order date_created_gmt) — the traffic-check below needs its own
+		// site-local boundary, not the UTC one used for the stats query.
+		$trafficFrom = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - ( $days * DAY_IN_SECONDS ) );
+
 		$anomalies = array();
 
 		foreach ( $currencies as $currency ) {
@@ -103,7 +109,7 @@ class AnomalyDetectionService {
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$events} WHERE to_currency = %s AND created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$currency,
-					$from . ' 00:00:00'
+					$trafficFrom
 				)
 			) > 0;
 
