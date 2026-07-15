@@ -18,6 +18,23 @@ if ( ! defined( 'ABSPATH' ) ) {
  * plain JS using the wp.* globals WordPress already provides, registered
  * directly via register_block_type()'s args array instead of a
  * block.json + build pipeline.
+ *
+ * Page builder compatibility (Elementor, Divi, Gutenberg) needs no
+ * dedicated integration code: this block, the shortcode (Shortcode.php),
+ * and the classic widget (CurrencySwitcherWidget.php) are all registered
+ * through standard, public WordPress APIs (register_block_type(),
+ * add_shortcode(), register_widget()), which is exactly what every major
+ * page builder already knows how to render — Elementor's Shortcode
+ * widget and its WordPress-widget wrapper, Divi's Shortcode module and
+ * Sidebar module, and Gutenberg natively, all pick this up automatically.
+ * There's no special-case rendering logic a builder needs that this
+ * plugin doesn't already provide by using the standard mechanisms in the
+ * first place — the one caveat is a builder's *editor/preview* iframe,
+ * which can render a shortcode/block preview outside the normal
+ * wp_footer lifecycle and so may not always pick up the JS/CSS this
+ * class's assets-needed detection enqueues; that's an editing-experience
+ * nuance, not a live storefront bug, since the front-end output always
+ * goes through the normal page lifecycle.
  */
 class Block {
 

@@ -52,6 +52,7 @@ function wcmcs_uninstall_single_site(): void {
 		'wcmcs_last_summary_sent_at',
 		'wcmcs_webhooks',
 		'wcmcs_base_currency_history',
+		'wcmcs_headless_allowed_origins',
 	);
 
 	foreach ( $options as $option ) {

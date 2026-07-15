@@ -304,7 +304,9 @@ final class Plugin {
 		\WCMCS\Admin\AnalyticsAjaxController::register();
 		\WCMCS\Admin\RateCorrelationAjaxController::register();
 		\WCMCS\Api\RestController::register();
+		\WCMCS\Api\StoreApiController::register();
 		\WCMCS\Admin\WebhooksAjaxController::register();
+		\WCMCS\Admin\ApiAccessAjaxController::register();
 		\WCMCS\Admin\AdminMenu::register();
 
 		\WCMCS\Services\Currency\CurrencyOverrideService::register();

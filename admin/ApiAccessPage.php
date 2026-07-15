@@ -20,8 +20,23 @@ class ApiAccessPage {
 		}
 
 		wp_enqueue_style( 'wcmcs-admin', WCMCS_URL . 'assets/css/admin.css', array(), WCMCS_VERSION );
+		wp_enqueue_script( 'wcmcs-api-access', WCMCS_URL . 'assets/js/api-access.js', array(), WCMCS_VERSION, true );
+		wp_localize_script(
+			'wcmcs-api-access',
+			'wcmcsApiAccess',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( ApiAccessAjaxController::NONCE ),
+				'i18n'    => array(
+					'saved'      => __( 'Saved.', 'wc-multicurrency-switcher' ),
+					'saveFailed' => __( 'Save failed.', 'wc-multicurrency-switcher' ),
+				),
+			)
+		);
 
-		$base = rest_url( 'wcmcs/v1' );
+		$base        = rest_url( 'wcmcs/v1' );
+		$storeBase   = rest_url( 'wcmcs/v1/store' );
+		$allowedOrigins = (string) get_option( 'wcmcs_headless_allowed_origins', '' );
 
 		?>
 		<div class="wrap wcmcs-api-access">
@@ -55,6 +70,44 @@ class ApiAccessPage {
 			<h2><?php esc_html_e( 'Example', 'wc-multicurrency-switcher' ); ?></h2>
 			<pre>curl -u "username:application-password" \
   "<?php echo esc_html( $base ); ?>/rates"</pre>
+
+			<hr>
+
+			<h2><?php esc_html_e( 'Headless Storefront API', 'wc-multicurrency-switcher' ); ?></h2>
+			<p>
+				<?php esc_html_e( 'Separate, public, unauthenticated endpoints for a decoupled front end (Next.js, React, etc.) with no WordPress login of its own — no Application Password needed. Only read-only data and price conversion; nothing here can change store settings.', 'wc-multicurrency-switcher' ); ?>
+			</p>
+
+			<h3><?php esc_html_e( 'Base URL', 'wc-multicurrency-switcher' ); ?></h3>
+			<p><code><?php echo esc_html( $storeBase ); ?></code></p>
+
+			<table class="widefat striped">
+				<thead><tr><th><?php esc_html_e( 'Endpoint', 'wc-multicurrency-switcher' ); ?></th><th><?php esc_html_e( 'Description', 'wc-multicurrency-switcher' ); ?></th></tr></thead>
+				<tbody>
+					<tr><td><code>GET /currencies</code></td><td><?php esc_html_e( 'Base currency and every enabled currency with its formatting.', 'wc-multicurrency-switcher' ); ?></td></tr>
+					<tr><td><code>GET /rates</code></td><td><?php esc_html_e( 'Effective (locked/marked-up) rate from the base currency to each enabled currency.', 'wc-multicurrency-switcher' ); ?></td></tr>
+					<tr><td><code>GET /convert?amount=49.99&amp;to=EUR</code></td><td><?php esc_html_e( 'Converts an amount, applying this plugin\'s exact rate, markup, and rounding rules. Add &from=CODE to convert from a currency other than the base.', 'wc-multicurrency-switcher' ); ?></td></tr>
+				</tbody>
+			</table>
+
+			<p>
+				<?php esc_html_e( 'There is no server-side "set the visitor\'s currency" endpoint — a headless front end doesn\'t share cookies/sessions with WordPress the way a normal page does. Keep the shopper\'s chosen currency in your front end\'s own state (e.g. localStorage) and pass it as ?to= on each request instead.', 'wc-multicurrency-switcher' ); ?>
+			</p>
+
+			<h3><?php esc_html_e( 'Example', 'wc-multicurrency-switcher' ); ?></h3>
+			<pre>curl "<?php echo esc_html( $storeBase ); ?>/convert?amount=49.99&to=EUR"</pre>
+
+			<h3><?php esc_html_e( 'Allowed origins (CORS)', 'wc-multicurrency-switcher' ); ?></h3>
+			<p>
+				<?php esc_html_e( 'One origin per line (scheme + host, e.g. https://shop.example.com) — only these origins will receive Access-Control-Allow-Origin for the headless endpoints above. Leave empty to disable cross-origin access entirely (same-origin requests still work).', 'wc-multicurrency-switcher' ); ?>
+			</p>
+			<p>
+				<textarea id="wcmcs-headless-origins" rows="4" class="large-text code" placeholder="https://shop.example.com"><?php echo esc_textarea( $allowedOrigins ); ?></textarea>
+			</p>
+			<p>
+				<button type="button" class="button button-primary" id="wcmcs-save-headless-origins"><?php esc_html_e( 'Save', 'wc-multicurrency-switcher' ); ?></button>
+				<span class="wcmcs-status" id="wcmcs-headless-origins-status"></span>
+			</p>
 		</div>
 		<?php
 	}
