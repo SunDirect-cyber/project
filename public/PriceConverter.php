@@ -18,10 +18,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  *  - Product listing pages & single product page: read get_price() /
  *    get_regular_price() / get_sale_price() directly — converted here.
  *  - Variable products: each WC_Product_Variation goes through the
- *    _variation_ equivalents of the same filters, so per-variation
- *    prices (and the "$10 - $25" range WooCommerce builds from them)
- *    are each converted individually before the range is computed —
- *    never converting a single pre-computed range number.
+ *    _variation_ equivalents of the same filters when its own price is
+ *    read directly. The "$10 - $25" range shown on the parent product
+ *    is a *different* code path, though — WooCommerce computes it via
+ *    WC_Product_Variable::get_variation_prices(), which reads raw
+ *    price meta straight from the database (for performance) into a
+ *    transient, bypassing the per-variation getters entirely. That
+ *    needs its own filter (woocommerce_variation_prices, below) to
+ *    convert the range correctly — and WooCommerce's own cache key for
+ *    that transient needs the active currency added to it
+ *    (woocommerce_get_variation_prices_hash, below), otherwise the
+ *    first currency to view a variable product would get its range
+ *    cached and served to every other currency afterward.
  *  - Cart & mini-cart: WC_Cart calculates line totals and the cart
  *    subtotal/total from each item's (already-converted) product price
  *    at runtime — nothing extra needed.
@@ -46,6 +54,29 @@ if ( ! defined( 'ABSPATH' ) ) {
  *    don't set is_admin() to true, so shouldApply() already allows
  *    them — product/cart responses are serialized from the same
  *    getters this class already converts.
+ *  - Grouped products: WC_Product_Grouped has no price of its own — its
+ *    displayed range is built by looping its child products and calling
+ *    each child's own get_price()/get_price_html(), which already goes
+ *    through the standard filters above. Nothing extra needed.
+ *  - WooCommerce Product Bundles: this extension isn't installed in
+ *    this environment, so the hook below (guarded to be a no-op unless
+ *    the extension is active) is a best-effort integration against its
+ *    publicly documented filter, not something verified end-to-end
+ *    against the real plugin — worth confirming on a store that has it
+ *    installed. A bundle's own base price (in its "static pricing"
+ *    mode) is stored as ordinary product price meta and already goes
+ *    through the standard filters with no extra code.
+ *  - Third-party quantity-discount/tiered-pricing plugins: there's no
+ *    single hook that covers all of them generically — some read
+ *    get_price() live (and so already see a converted price, with
+ *    their percentage/tier logic applying correctly on top of it), but
+ *    others store their own *absolute* tier prices (e.g. "buy 10 for
+ *    $90 flat") in separate meta this class has no way to know about.
+ *    convert_amount() below is the public extension point: a specific
+ *    plugin integration (or a store owner's own snippet) can call it,
+ *    or apply the 'wcmcs_convert_price' filter, to convert an arbitrary
+ *    number using the exact same rate + rounding rules as everything
+ *    else here, rather than each integration reinventing conversion.
  */
 class PriceConverter {
 
@@ -63,6 +94,14 @@ class PriceConverter {
 		add_filter( 'woocommerce_product_variation_get_regular_price', array( self::class, 'filter_price' ), 10, 2 );
 		add_filter( 'woocommerce_product_variation_get_sale_price', array( self::class, 'filter_price' ), 10, 2 );
 
+		// Variable product price ranges bypass the per-variation getters
+		// above entirely (see the class docblock) — these two cover that
+		// separate code path.
+		add_filter( 'woocommerce_variation_prices', array( self::class, 'filter_variation_prices' ), 10, 3 );
+		add_filter( 'woocommerce_get_variation_prices_hash', array( self::class, 'add_currency_to_variation_prices_hash' ), 10, 3 );
+
+		add_filter( 'wcmcs_convert_price', array( self::class, 'filter_convert_price' ), 10, 2 );
+
 		// WooCommerce Subscriptions stores the sign-up fee as its own meta
 		// field, read through WC_Subscriptions_Product::get_sign_up_fee()
 		// rather than any of the price getters above — it needs its own
@@ -70,6 +109,12 @@ class PriceConverter {
 		// actually installed.
 		if ( class_exists( 'WC_Subscriptions_Product' ) ) {
 			add_filter( 'woocommerce_subscriptions_product_sign_up_fee', array( self::class, 'filter_signup_fee' ), 10, 2 );
+		}
+
+		// Best-effort WooCommerce Product Bundles support — see the class
+		// docblock for the honesty caveat on this one.
+		if ( class_exists( 'WC_Product_Bundle' ) ) {
+			add_filter( 'woocommerce_bundle_calculated_price', array( self::class, 'filter_price' ), 10, 2 );
 		}
 	}
 
@@ -108,10 +153,74 @@ class PriceConverter {
 	}
 
 	/**
+	 * @param array{price?: array<int,mixed>, regular_price?: array<int,mixed>, sale_price?: array<int,mixed>} $prices
+	 */
+	public static function filter_variation_prices( $prices, $product, $for_display ) {
+		if ( ! is_array( $prices ) || ! self::shouldApply() ) {
+			return $prices;
+		}
+
+		foreach ( array( 'price', 'regular_price', 'sale_price' ) as $key ) {
+			if ( empty( $prices[ $key ] ) || ! is_array( $prices[ $key ] ) ) {
+				continue;
+			}
+
+			foreach ( $prices[ $key ] as $variationId => $amount ) {
+				if ( '' === $amount || ! is_numeric( $amount ) || (float) $amount <= 0 ) {
+					continue;
+				}
+
+				$prices[ $key ][ $variationId ] = self::convertAndRound( (float) $amount, $amount );
+			}
+		}
+
+		return $prices;
+	}
+
+	/**
+	 * @param string[] $hash
+	 * @return string[]
+	 */
+	public static function add_currency_to_variation_prices_hash( $hash, $product, $for_display ) {
+		if ( ! is_array( $hash ) ) {
+			return $hash;
+		}
+
+		$hash[] = self::activeCurrency() ?? self::baseCurrency();
+
+		return $hash;
+	}
+
+	/**
+	 * Public extension point for code this class has no way to hook into
+	 * directly — a specific third-party pricing plugin integration, or a
+	 * store owner's own snippet — that needs to convert a raw number
+	 * using the exact same rate and rounding rules as everything else.
+	 *
+	 * @param float|int|string $amount
+	 * @return float|int|string
+	 */
+	public static function convert_amount( $amount, ?string $targetCurrency = null ) {
+		if ( '' === $amount || ! is_numeric( $amount ) || (float) $amount <= 0 || ! self::shouldApply() ) {
+			return $amount;
+		}
+
+		return self::convertAndRound( (float) $amount, $amount, $targetCurrency );
+	}
+
+	/**
+	 * @param float|int|string $amount
+	 * @return float|int|string
+	 */
+	public static function filter_convert_price( $amount, ?string $targetCurrency = null ) {
+		return self::convert_amount( $amount, $targetCurrency );
+	}
+
+	/**
 	 * @param string|float $original Returned unchanged if conversion isn't applicable.
 	 */
-	private static function convertAndRound( float $amount, $original ) {
-		$active = self::activeCurrency();
+	private static function convertAndRound( float $amount, $original, ?string $targetCurrency = null ) {
+		$active = $targetCurrency ?? self::activeCurrency();
 		$base   = self::baseCurrency();
 
 		if ( null === $active || $active === $base ) {
