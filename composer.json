@@ -11,7 +11,8 @@
             "WCMCS\\Core\\": "includes/Core/",
             "WCMCS\\Services\\": "includes/Services/",
             "WCMCS\\Admin\\": "admin/",
-            "WCMCS\\Frontend\\": "public/"
+            "WCMCS\\Frontend\\": "public/",
+            "WCMCS\\Cli\\": "includes/Cli/"
         }
     }
 }

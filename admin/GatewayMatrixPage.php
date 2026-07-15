@@ -121,5 +121,9 @@ class GatewayMatrixPage {
 		}
 
 		update_option( 'wcmcs_gateway_currency_overrides', $overrides );
+
+		/** @var \WCMCS\Services\ActivityLogger $activity */
+		$activity = \WCMCS\Core\Plugin::instance()->container()->get( 'activity_logger' );
+		$activity->record( 'Updated payment gateway currency matrix', array( 'overrides' => $overrides ) );
 	}
 }

@@ -40,9 +40,12 @@ class RateProviderConfigAjaxController {
 
 		$post = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
+		$keysChanged = array();
+
 		foreach ( self::KEY_OPTIONS as $slug => $optionName ) {
 			if ( isset( $post[ 'key_' . $slug ] ) ) {
 				update_option( $optionName, sanitize_text_field( $post[ 'key_' . $slug ] ) );
+				$keysChanged[] = $slug;
 			}
 		}
 
@@ -61,6 +64,19 @@ class RateProviderConfigAjaxController {
 		if ( isset( $post['sync_interval'] ) && array_key_exists( $post['sync_interval'], Cron::INTERVALS ) ) {
 			update_option( 'wcmcs_rate_refresh_interval', sanitize_key( $post['sync_interval'] ) );
 		}
+
+		/** @var \WCMCS\Services\ActivityLogger $activity */
+		$activity = Plugin::instance()->container()->get( 'activity_logger' );
+		// Never log the key values themselves — only which providers had
+		// a key updated, so the activity log can't leak credentials.
+		$activity->record(
+			'Updated rate provider settings',
+			array(
+				'api_keys_updated' => $keysChanged,
+				'priority'         => $priority,
+				'sync_interval'    => $post['sync_interval'] ?? null,
+			)
+		);
 
 		wp_send_json_success();
 	}

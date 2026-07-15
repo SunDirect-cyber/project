@@ -139,6 +139,19 @@ class DisplaySettingsPage {
 			update_option( 'wcmcs_currency_remember_mode', $rememberMode );
 		}
 
-		update_option( 'wcmcs_currency_switch_confirmation', ! empty( $post['switch_confirmation'] ) );
+		$confirmation = ! empty( $post['switch_confirmation'] );
+		update_option( 'wcmcs_currency_switch_confirmation', $confirmation );
+
+		/** @var \WCMCS\Services\ActivityLogger $activity */
+		$activity = Plugin::instance()->container()->get( 'activity_logger' );
+		$activity->record(
+			'Updated display & behavior settings',
+			array(
+				'default_switcher_style' => $style,
+				'auto_detection_mode'    => $detectionMode,
+				'remember_mode'          => $rememberMode,
+				'switch_confirmation'    => $confirmation,
+			)
+		);
 	}
 }

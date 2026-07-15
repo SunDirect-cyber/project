@@ -13,13 +13,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class AdminMenu {
 
-	public const CAPABILITY = 'manage_woocommerce';
+	public const CAPABILITY = \WCMCS\Core\CapabilityManager::CAP;
 	public const SLUG       = 'wcmcs';
 	public const SLUG_EXCHANGE_RATES = 'wcmcs-exchange-rates';
 	public const SLUG_GATEWAYS       = 'wcmcs-gateways';
 	public const SLUG_CURRENCIES     = 'wcmcs-currencies';
 	public const SLUG_PROVIDERS      = 'wcmcs-providers';
 	public const SLUG_DISPLAY        = 'wcmcs-display';
+	public const SLUG_IMPORT_EXPORT  = 'wcmcs-import-export';
+	public const SLUG_ACTIVITY_LOG   = 'wcmcs-activity-log';
 
 	private static string $exchangeRatesHook = '';
 
@@ -93,6 +95,24 @@ class AdminMenu {
 			self::CAPABILITY,
 			self::SLUG_DISPLAY,
 			array( DisplaySettingsPage::class, 'render' )
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'Import / Export', 'wc-multicurrency-switcher' ),
+			__( 'Import / Export', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			self::SLUG_IMPORT_EXPORT,
+			array( ImportExportPage::class, 'render' )
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'Activity Log', 'wc-multicurrency-switcher' ),
+			__( 'Activity Log', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			self::SLUG_ACTIVITY_LOG,
+			array( ActivityLogPage::class, 'render' )
 		);
 
 		self::$allHooks = array_filter( array( $dashboardHook, self::$exchangeRatesHook, $gatewaysHook ) );

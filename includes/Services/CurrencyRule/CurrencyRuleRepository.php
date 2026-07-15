@@ -168,4 +168,30 @@ class CurrencyRuleRepository {
 
 		return $rules;
 	}
+
+	/**
+	 * Every active rule, across every currency — used by settings
+	 * export, which needs the full picture rather than one currency at
+	 * a time.
+	 *
+	 * @return array{currency: string, rule_type: string, rule_value: string, priority: int}[]
+	 */
+	public function getAll(): array {
+		global $wpdb;
+
+		$rows = $wpdb->get_results(
+			"SELECT currency, rule_type, rule_value, priority FROM {$this->table()} WHERE is_active = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			ARRAY_A
+		);
+
+		return array_map(
+			static fn ( array $row ) => array(
+				'currency'   => (string) $row['currency'],
+				'rule_type'  => (string) $row['rule_type'],
+				'rule_value' => (string) $row['rule_value'],
+				'priority'   => (int) $row['priority'],
+			),
+			$rows ?: array()
+		);
+	}
 }

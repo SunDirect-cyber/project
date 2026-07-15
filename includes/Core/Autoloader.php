@@ -25,6 +25,7 @@ class Autoloader {
 			'WCMCS\\Services\\' => WCMCS_PATH . 'includes/Services/',
 			'WCMCS\\Admin\\'    => WCMCS_PATH . 'admin/',
 			'WCMCS\\Frontend\\' => WCMCS_PATH . 'public/',
+			'WCMCS\\Cli\\'      => WCMCS_PATH . 'includes/Cli/',
 		);
 	}
 

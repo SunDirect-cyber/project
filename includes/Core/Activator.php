@@ -70,6 +70,7 @@ class Activator {
 	private static function activate_single_site(): void {
 		Installer::install();
 		self::schedule_cron_events();
+		CapabilityManager::grantDefaults();
 
 		if ( false === get_option( 'wcmcs_settings' ) ) {
 			add_option( 'wcmcs_settings', array() );

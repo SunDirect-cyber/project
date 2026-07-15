@@ -12,6 +12,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 require_once __DIR__ . '/includes/Core/Installer.php';
 require_once __DIR__ . '/includes/Core/Cron.php';
+require_once __DIR__ . '/includes/Core/CapabilityManager.php';
 
 function wcmcs_uninstall_single_site(): void {
 	global $wpdb;
@@ -32,19 +33,34 @@ function wcmcs_uninstall_single_site(): void {
 		'wcmcs_last_rate_success_at',
 		'wcmcs_rate_alert_sent',
 		'wcmcs_rate_alert_threshold_hours',
+		'wcmcs_last_cron_run_at',
+		'wcmcs_last_cron_result',
+		'wcmcs_currency_format_overrides',
+		'wcmcs_gateway_currency_overrides',
+		'wcmcs_currency_remember_mode',
+		'wcmcs_currency_switch_confirmation',
+		'wcmcs_auto_detection_mode',
+		'wcmcs_default_switcher_style',
+		'wcmcs_floating_widget_enabled',
+		'wcmcs_floating_widget_style',
+		'wcmcs_menu_location',
+		'wcmcs_rate_deviation_threshold_percent',
 	);
 
 	foreach ( $options as $option ) {
 		delete_option( $option );
 	}
 
-	// Transients (including their timeout siblings).
+	// Day-bucketed stats counters and transients (including timeout siblings).
 	$wpdb->query(
-		"DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_wcmcs\\_%' OR option_name LIKE '\\_transient\\_timeout\\_wcmcs\\_%'"
+		"DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_wcmcs\\_%' OR option_name LIKE '\\_transient\\_timeout\\_wcmcs\\_%' OR option_name LIKE 'wcmcs\\_stats\\_conversions\\_%'"
 	);
 
 	// Cron.
 	\WCMCS\Core\Cron::unschedule();
+
+	// Capability granted to administrator/shop_manager at activation.
+	\WCMCS\Core\CapabilityManager::removeFromAllRoles();
 }
 
 if ( is_multisite() ) {

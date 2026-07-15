@@ -224,6 +224,13 @@ final class Plugin {
 		);
 
 		$this->container->set(
+			'activity_logger',
+			static fn ( Container $c ) => new \WCMCS\Services\ActivityLogger(
+				$c->get( 'logger_service' )
+			)
+		);
+
+		$this->container->set(
 			'stats_service',
 			static fn () => new \WCMCS\Services\StatsService()
 		);
@@ -259,6 +266,7 @@ final class Plugin {
 		\WCMCS\Frontend\GeoSuggestionController::register();
 
 		MultilingualCompat::register();
+		CapabilityManager::register();
 
 		$container = $this->container;
 
@@ -282,6 +290,14 @@ final class Plugin {
 			10,
 			2
 		);
+
+		\WCMCS\Admin\ImportExportPage::register();
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			\WP_CLI::add_command( 'wcmcs currency', \WCMCS\Cli\CurrencyCommand::class );
+			\WP_CLI::add_command( 'wcmcs rate', \WCMCS\Cli\RateCommand::class );
+			\WP_CLI::add_command( 'wcmcs settings', \WCMCS\Cli\SettingsCommand::class );
+		}
 	}
 
 	private function load_textdomain(): void {

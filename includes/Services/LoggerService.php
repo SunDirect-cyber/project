@@ -80,4 +80,52 @@ class LoggerService {
 			$rows ?: array()
 		);
 	}
+
+	/**
+	 * Paginated entries for one level, context included and decoded —
+	 * used by the Activity Log admin screen, which needs the acting
+	 * user (ActivityLogger always attaches user_id/user_login to context).
+	 *
+	 * @return array{level: string, message: string, context: array<string, mixed>, created_at: string}[]
+	 */
+	public function paginate( string $level, int $page = 1, int $perPage = 20 ): array {
+		global $wpdb;
+
+		$table  = $wpdb->prefix . 'wcmcs_logs';
+		$offset = max( 0, ( max( 1, $page ) - 1 ) * $perPage );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT level, message, context, created_at FROM {$table} WHERE level = %s ORDER BY id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$level,
+				$perPage,
+				$offset
+			),
+			ARRAY_A
+		);
+
+		return array_map(
+			static function ( array $row ) {
+				$context = $row['context'] ? json_decode( (string) $row['context'], true ) : array();
+
+				return array(
+					'level'      => (string) $row['level'],
+					'message'    => (string) $row['message'],
+					'context'    => is_array( $context ) ? $context : array(),
+					'created_at' => (string) $row['created_at'],
+				);
+			},
+			$rows ?: array()
+		);
+	}
+
+	public function countByLevel( string $level ): int {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'wcmcs_logs';
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE level = %s", $level ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
+	}
 }

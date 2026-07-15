@@ -52,6 +52,10 @@ class CurrencyManagementAjaxController {
 
 		update_option( 'wcmcs_enabled_currencies', $valid );
 
+		/** @var \WCMCS\Services\ActivityLogger $activity */
+		$activity = Plugin::instance()->container()->get( 'activity_logger' );
+		$activity->record( 'Updated enabled currencies', array( 'currencies' => $valid ) );
+
 		wp_send_json_success( array( 'currencies' => $valid ) );
 	}
 
@@ -122,6 +126,10 @@ class CurrencyManagementAjaxController {
 			$offset = isset( $post['rounding_offset'] ) && is_numeric( $post['rounding_offset'] ) ? (float) $post['rounding_offset'] : 0.01;
 			$pricingRules->setRoundingConfig( $code, $roundingMode, $step, $offset );
 		}
+
+		/** @var \WCMCS\Services\ActivityLogger $activity */
+		$activity = Plugin::instance()->container()->get( 'activity_logger' );
+		$activity->record( "Updated {$code} currency settings", array( 'code' => $code ) + $format );
 
 		wp_send_json_success();
 	}
