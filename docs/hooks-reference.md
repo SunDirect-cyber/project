@@ -132,6 +132,21 @@ add_action( 'wcmcs_after_checkout_currency_lock', function ( $orderId, $currency
 }, 10, 4 );
 ```
 
+### Third-party integrations
+
+#### `wcmcs_renewal_currency_mismatch`
+Fires (WooCommerce Subscriptions integration) when a just-created renewal order's currency doesn't match its parent subscription's currency. This plugin deliberately does not attempt to fix the mismatch itself — by the time the order exists, its totals were already computed in the wrong currency, and relabeling the currency code without recalculating every total would leave numerically wrong figures under a different label. A store that wants automated handling should hook this.
+
+```php
+do_action( 'wcmcs_renewal_currency_mismatch', \WC_Order $renewalOrder, \WC_Subscription $subscription );
+```
+
+```php
+add_action( 'wcmcs_renewal_currency_mismatch', function ( $renewalOrder, $subscription ) {
+	// Flag the order for manual review, notify an admin, etc.
+}, 10, 2 );
+```
+
 ## Filters
 
 ### `wcmcs_supported_currencies`

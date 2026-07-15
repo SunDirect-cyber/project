@@ -147,6 +147,13 @@ class PriceConverter {
 			add_filter( 'woocommerce_bundle_calculated_price', array( self::class, 'filter_price' ), 10, 2 );
 		}
 
+		// Best-effort WooCommerce Composite Products support, same
+		// honesty caveat as Bundles above — not verified against a live
+		// install of the extension in this environment.
+		if ( class_exists( 'WC_Product_Composite' ) ) {
+			add_filter( 'woocommerce_composite_calculated_price', array( self::class, 'filter_price' ), 10, 2 );
+		}
+
 		// A no-op unless tax-then-convert mode is on (see
 		// TAX_MODE_TAX_THEN_CONVERT below) — registered unconditionally
 		// so switching the setting takes effect without a page reload of
@@ -525,6 +532,15 @@ class PriceConverter {
 
 	private static function shouldApply(): bool {
 		if ( is_admin() && ! wp_doing_ajax() ) {
+			return false;
+		}
+
+		// A multi-vendor plugin's front-end vendor dashboard is a
+		// store-management view exactly like wp-admin's product editor —
+		// it just happens to run outside wp-admin. Converting prices
+		// there risks a vendor saving a converted number back as their
+		// product's real base-currency price. See VendorDashboardDetector.
+		if ( \WCMCS\Compat\VendorDashboardDetector::isVendorDashboard() ) {
 			return false;
 		}
 

@@ -27,6 +27,7 @@ class Autoloader {
 			'WCMCS\\Frontend\\' => WCMCS_PATH . 'public/',
 			'WCMCS\\Cli\\'      => WCMCS_PATH . 'includes/Cli/',
 			'WCMCS\\Api\\'      => WCMCS_PATH . 'includes/Api/',
+			'WCMCS\\Compat\\'   => WCMCS_PATH . 'includes/Compat/',
 		);
 	}
 

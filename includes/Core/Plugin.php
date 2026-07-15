@@ -326,6 +326,9 @@ final class Plugin {
 		MultilingualCompat::register();
 		PluginConflictDetector::register();
 		BaseCurrencyChangeGuard::register();
+		\WCMCS\Compat\CachingPluginCompat::register();
+		\WCMCS\Compat\SubscriptionsCompat::register();
+		\WCMCS\Compat\BookingsCompat::register();
 		CapabilityManager::register();
 
 		$container = $this->container;

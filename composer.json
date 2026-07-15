@@ -13,7 +13,8 @@
             "WCMCS\\Admin\\": "admin/",
             "WCMCS\\Frontend\\": "public/",
             "WCMCS\\Cli\\": "includes/Cli/",
-            "WCMCS\\Api\\": "includes/Api/"
+            "WCMCS\\Api\\": "includes/Api/",
+            "WCMCS\\Compat\\": "includes/Compat/"
         }
     }
 }
