@@ -116,6 +116,87 @@ class PriceConverter {
 		if ( class_exists( 'WC_Product_Bundle' ) ) {
 			add_filter( 'woocommerce_bundle_calculated_price', array( self::class, 'filter_price' ), 10, 2 );
 		}
+
+		// A no-op unless tax-then-convert mode is on (see
+		// TAX_MODE_TAX_THEN_CONVERT below) — registered unconditionally
+		// so switching the setting takes effect without a page reload of
+		// hook registration.
+		add_filter( 'woocommerce_get_price_html', array( self::class, 'append_display_equivalent' ), 10, 2 );
+	}
+
+	public const TAX_MODE_CONVERT_THEN_TAX = 'convert_then_tax';
+	public const TAX_MODE_TAX_THEN_CONVERT = 'tax_then_convert';
+
+	/**
+	 * Two fundamentally different, both legitimate, ways a store might
+	 * need this to work — which one is correct is a business/accounting
+	 * decision for the store owner, not something this plugin should
+	 * assume:
+	 *
+	 *  - "convert_then_tax" (default): the product price is converted
+	 *    first, and WooCommerce's own tax engine then calculates tax on
+	 *    that already-converted number — exactly what every filter in
+	 *    this class already does, since they all intercept the raw
+	 *    price before WooCommerce ever calculates a total from it. The
+	 *    order is created and charged in the shopper's chosen currency.
+	 *  - "tax_then_convert": WooCommerce calculates everything —
+	 *    including tax — entirely in the base currency, completely
+	 *    untouched (every conversion filter in this class becomes a
+	 *    no-op via shouldApply() below), so the actual order and charge
+	 *    stay in base currency with tax computed on real base-currency
+	 *    amounts. The shopper still sees their chosen currency, but only
+	 *    as an informational "(≈ X)" equivalent appended to the product
+	 *    price (append_display_equivalent() below) — deliberately
+	 *    display-only, since re-deriving WooCommerce's own tax
+	 *    calculation externally (multiple tax classes, compound tax,
+	 *    coupon interactions) to convert a *post-tax* total correctly
+	 *    would risk quietly computing the wrong tax, which is a far
+	 *    worse failure than a slightly different rounding order.
+	 */
+	public static function taxConversionMode(): string {
+		$mode = (string) get_option( 'wcmcs_tax_conversion_mode', self::TAX_MODE_CONVERT_THEN_TAX );
+
+		return self::TAX_MODE_TAX_THEN_CONVERT === $mode ? self::TAX_MODE_TAX_THEN_CONVERT : self::TAX_MODE_CONVERT_THEN_TAX;
+	}
+
+	/**
+	 * Appends a converted-equivalent hint to a product's displayed price
+	 * — the only thing that happens in tax-then-convert mode, since
+	 * every other filter in this class is disabled in that mode via
+	 * shouldApply().
+	 */
+	public static function append_display_equivalent( string $html, $product ): string {
+		if ( self::TAX_MODE_TAX_THEN_CONVERT !== self::taxConversionMode() ) {
+			return $html;
+		}
+
+		if ( is_admin() && ! wp_doing_ajax() ) {
+			return $html;
+		}
+
+		$active = self::activeCurrency();
+		$base   = self::baseCurrency();
+
+		if ( null === $active || $active === $base || ! is_object( $product ) || ! method_exists( $product, 'get_price' ) ) {
+			return $html;
+		}
+
+		$price = $product->get_price();
+
+		if ( '' === $price || ! is_numeric( $price ) || (float) $price <= 0 ) {
+			return $html;
+		}
+
+		$converted = self::convertAndRound( (float) $price, null, $active );
+
+		if ( null === $converted ) {
+			return $html;
+		}
+
+		/** @var \WCMCS\Services\CurrencyService $currencyService */
+		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
+
+		return $html . ' <span class="wcmcs-price-equivalent">(&asymp; ' . esc_html( $currencyService->format( $converted, $active ) ) . ')</span>';
 	}
 
 	public static function filter_currency( string $currency ): string {
@@ -274,8 +355,27 @@ class PriceConverter {
 	 * WooCommerce Blocks' Store API) are frontend shopping activity even
 	 * though some of them route through admin-ajax.php, so those stay on.
 	 */
+	/**
+	 * Public so related converters (ShippingCostConverter,
+	 * CouponConverter) can gate on the exact same rule instead of each
+	 * re-implementing it slightly differently.
+	 */
+	public static function isApplicable(): bool {
+		return self::shouldApply();
+	}
+
 	private static function shouldApply(): bool {
 		if ( is_admin() && ! wp_doing_ajax() ) {
+			return false;
+		}
+
+		// In tax-then-convert mode, every conversion filter that touches
+		// an actual calculation (price, currency, variation ranges,
+		// sign-up fees, shipping, coupons) is switched off — only
+		// append_display_equivalent() is still active, adding an
+		// informational equivalent without changing what WooCommerce
+		// actually calculates or charges.
+		if ( self::TAX_MODE_TAX_THEN_CONVERT === self::taxConversionMode() ) {
 			return false;
 		}
 

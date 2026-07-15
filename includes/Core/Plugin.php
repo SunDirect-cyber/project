@@ -238,6 +238,8 @@ final class Plugin {
 		\WCMCS\Frontend\FrontendHooks::register();
 		\WCMCS\Frontend\UrlCurrencyOverride::register();
 		\WCMCS\Frontend\PriceConverter::register();
+		\WCMCS\Frontend\ShippingCostConverter::register();
+		\WCMCS\Frontend\CouponConverter::register();
 		\WCMCS\Frontend\OrderCurrencyRecorder::register();
 		\WCMCS\Frontend\GeoSuggestionController::register();
 
