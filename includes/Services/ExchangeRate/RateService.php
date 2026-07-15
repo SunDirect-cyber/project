@@ -89,9 +89,45 @@ class RateService {
 	 * scheduled/manual refresh.
 	 */
 	public function fetchLive( string $base, string $target ): ?float {
+		/**
+		 * Fires immediately before this plugin asks its provider chain for
+		 * a live rate — a hook point for logging, metrics, or short-
+		 * circuiting the outbound API call entirely with a custom provider
+		 * registered via the wcmcs_register_services action instead.
+		 *
+		 * @param string $base   Base currency code.
+		 * @param string $target Target currency code.
+		 */
+		do_action( 'wcmcs_before_rate_fetch', $base, $target );
+
 		$rate = $this->chain->getRate( $base, $target );
 
+		if ( null !== $rate ) {
+			/**
+			 * Filters a freshly fetched rate before it's validated and
+			 * stored — the hook point for a store-specific adjustment that
+			 * needs to apply to every rate this plugin ever records, not
+			 * just at display time (see wcmcs_effective_rate for that).
+			 *
+			 * @param float  $rate   The raw rate the provider chain returned.
+			 * @param string $base   Base currency code.
+			 * @param string $target Target currency code.
+			 */
+			$rate = (float) apply_filters( 'wcmcs_rate_before_apply', $rate, $base, $target );
+		}
+
 		if ( null === $rate ) {
+			/**
+			 * Fires after a rate fetch attempt completes, successfully or
+			 * not. $rate is null on failure (every provider in the chain
+			 * failed, or validation rejected the result below).
+			 *
+			 * @param string     $base   Base currency code.
+			 * @param string     $target Target currency code.
+			 * @param float|null $rate   The stored rate, or null on failure.
+			 */
+			do_action( 'wcmcs_after_rate_fetch', $base, $target, null );
+
 			return null;
 		}
 
@@ -99,10 +135,14 @@ class RateService {
 		$validation = $this->validator->validate( $base, $target, $rate, $previous );
 
 		if ( ! $validation['valid'] ) {
+			do_action( 'wcmcs_after_rate_fetch', $base, $target, null );
+
 			return null;
 		}
 
 		$this->repository->store( $base, $target, $rate, $this->chain->getSourceName() );
+
+		do_action( 'wcmcs_after_rate_fetch', $base, $target, $rate );
 
 		return $rate;
 	}

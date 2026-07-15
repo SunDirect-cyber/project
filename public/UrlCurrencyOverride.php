@@ -40,23 +40,20 @@ class UrlCurrencyOverride {
 			return;
 		}
 
-		$enabled = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
+		/** @var \WCMCS\Services\CurrencyService $currencyService */
+		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
 
-		if ( ! in_array( $requested, $enabled, true ) ) {
+		if ( ! in_array( $requested, $currencyService->enabledCurrencyCodes(), true ) ) {
 			return;
 		}
 
 		/** @var \WCMCS\Services\CurrencyPersistenceService $persistence */
 		$persistence = Plugin::instance()->container()->get( 'currency_persistence_service' );
 
-		$previous = $persistence->getCurrency();
-
-		if ( $previous === $requested ) {
-			return;
-		}
-
+		// setCurrency() itself no-ops (and fires no hooks) when the
+		// requested currency is already active, and fires
+		// wcmcs_before_currency_switch / wcmcs_currency_switched when it
+		// isn't — see CurrencyPersistenceService.
 		$persistence->setCurrency( $requested, SessionService::SOURCE_URL );
-
-		do_action( 'wcmcs_currency_switched', $requested, SessionService::SOURCE_URL, $previous );
 	}
 }

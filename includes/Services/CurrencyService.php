@@ -42,6 +42,29 @@ class CurrencyService {
 	}
 
 	/**
+	 * The store's currently enabled currency codes — the authoritative
+	 * "what can a shopper actually choose" list, used both to build the
+	 * switcher UI and to validate an incoming currency switch request
+	 * (?currency= links, the AJAX switch endpoint). Centralized here,
+	 * filtered once, rather than each caller reading the raw option
+	 * directly, so a third-party integration only has to hook one filter
+	 * to reliably add/remove a currency everywhere this plugin enforces
+	 * that list — not just from the visible UI.
+	 *
+	 * @return string[] Uppercase ISO 4217 codes.
+	 */
+	public function enabledCurrencyCodes(): array {
+		$codes = array_values( array_unique( array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) ) ) );
+
+		/**
+		 * Filters the store's enabled currency codes.
+		 *
+		 * @param string[] $codes Uppercase ISO 4217 codes.
+		 */
+		return (array) apply_filters( 'wcmcs_supported_currencies', $codes );
+	}
+
+	/**
 	 * The store's own currency, as configured under
 	 * WooCommerce > Settings > General. Every other currency this plugin
 	 * offers is priced relative to this one.

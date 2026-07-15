@@ -33,6 +33,12 @@ if ( file_exists( WCMCS_PATH . 'vendor/autoload.php' ) ) {
 	( new \WCMCS\Core\Autoloader() )->register();
 }
 
+// The public, memorable static API (the global WCMCS class) — deliberately
+// not autoloaded like the rest of the plugin, since it's a plain global
+// class rather than a namespaced one. Safe to require unconditionally:
+// every method on it checks WCMCS::isActive() before touching anything.
+require_once WCMCS_PATH . 'includes/wcmcs-api.php';
+
 // Must be registered now, not inside plugins_loaded — WooCommerce reads
 // the feature compatibility list on 'before_woocommerce_init', which can
 // fire before our own 'plugins_loaded' callback runs.

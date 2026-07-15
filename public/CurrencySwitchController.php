@@ -33,18 +33,18 @@ class CurrencySwitchController {
 			wp_send_json_error( array( 'message' => __( 'Invalid currency.', 'wc-multicurrency-switcher' ) ) );
 		}
 
-		$enabled = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
+		/** @var \WCMCS\Services\CurrencyService $currencyService */
+		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
 
-		if ( ! in_array( $requested, $enabled, true ) ) {
+		if ( ! in_array( $requested, $currencyService->enabledCurrencyCodes(), true ) ) {
 			wp_send_json_error( array( 'message' => __( 'That currency is not available.', 'wc-multicurrency-switcher' ) ) );
 		}
 
 		/** @var \WCMCS\Services\CurrencyPersistenceService $persistence */
 		$persistence = Plugin::instance()->container()->get( 'currency_persistence_service' );
-		$previous    = $persistence->getCurrency();
+		// setCurrency() itself fires wcmcs_before_currency_switch /
+		// wcmcs_currency_switched — see CurrencyPersistenceService.
 		$persistence->setCurrency( $requested, SessionService::SOURCE_MANUAL );
-
-		do_action( 'wcmcs_currency_switched', $requested, SessionService::SOURCE_MANUAL, $previous );
 
 		wp_send_json_success( array( 'currency' => $requested ) );
 	}

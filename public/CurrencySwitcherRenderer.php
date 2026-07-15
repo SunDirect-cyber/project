@@ -66,7 +66,7 @@ class CurrencySwitcherRenderer {
 			)
 		);
 
-		$enabledCodes = array_values( array_unique( array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) ) ) );
+		$enabledCodes = $this->currencyService->enabledCurrencyCodes();
 
 		// Nothing to switch between — silently render nothing rather than
 		// a dropdown with a single, unclickable option.

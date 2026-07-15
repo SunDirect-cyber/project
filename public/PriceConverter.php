@@ -371,6 +371,33 @@ class PriceConverter {
 			return $original;
 		}
 
+		/**
+		 * Fires before a single price is converted — every product price,
+		 * shipping cost, coupon amount, or other value this plugin
+		 * converts passes through here, including values later served
+		 * from the per-request/cross-request cache below.
+		 *
+		 * @param float  $amount The raw (base-currency) amount about to be converted.
+		 * @param string $base   Base currency code.
+		 * @param string $active Target (active) currency code.
+		 * @param float  $rate   The effective (locked/marked-up) rate about to be applied.
+		 */
+		do_action( 'wcmcs_before_price_conversion', $amount, $base, $active, $rate );
+
+		/**
+		 * Filters the exchange rate immediately before it's applied to
+		 * this specific price — distinct from wcmcs_rate_before_apply
+		 * (RateService), which affects the rate as it's fetched and
+		 * stored to history. This filter only affects this one
+		 * conversion's arithmetic, not what gets recorded as history.
+		 *
+		 * @param float  $rate   The effective rate about to be applied.
+		 * @param string $base   Base currency code.
+		 * @param string $active Target (active) currency code.
+		 * @param float  $amount The raw (base-currency) amount being converted.
+		 */
+		$rate = (float) apply_filters( 'wcmcs_conversion_rate', $rate, $base, $active, $amount );
+
 		self::$conversionServedThisRequest = true;
 
 		// Cross-request cache: conversion is a pure function of (amount,
@@ -386,7 +413,7 @@ class PriceConverter {
 		$cache    = Plugin::instance()->container()->get( 'cache_service' );
 		$cacheKey = 'conv_' . $active . '_' . md5( (string) $amount );
 
-		return $cache->remember(
+		$result = $cache->remember(
 			$cacheKey,
 			self::cacheTtl(),
 			static function () use ( $amount, $rate, $active ) {
@@ -414,6 +441,32 @@ class PriceConverter {
 				return (string) round( $rounded, $decimals );
 			}
 		);
+
+		/**
+		 * Filters the final converted, rounded price — fires on every
+		 * call, including one served from cache, so this is the reliable
+		 * place to adjust what a shopper actually sees regardless of
+		 * whether this particular request happened to compute it fresh.
+		 *
+		 * @param string $result The converted price as a numeric string.
+		 * @param float  $amount The original (base-currency) amount.
+		 * @param string $active Target (active) currency code.
+		 * @param float  $rate   The effective rate that was applied.
+		 */
+		$result = (string) apply_filters( 'wcmcs_rounded_price', $result, $amount, $active, $rate );
+
+		/**
+		 * Fires after a price has been converted (and possibly served
+		 * from cache) — the counterpart to wcmcs_before_price_conversion.
+		 *
+		 * @param string $result The final converted price as a numeric string.
+		 * @param float  $amount The original (base-currency) amount.
+		 * @param string $base   Base currency code.
+		 * @param string $active Target (active) currency code.
+		 */
+		do_action( 'wcmcs_after_price_conversion', $result, $amount, $base, $active );
+
+		return $result;
 	}
 
 	/**
@@ -522,7 +575,9 @@ class PriceConverter {
 			return null;
 		}
 
-		$enabled = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
+		/** @var \WCMCS\Services\CurrencyService $currencyService */
+		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
+		$enabled          = $currencyService->enabledCurrencyCodes();
 
 		// A stale cookie/user-meta value for a currency the store no
 		// longer offers should never be trusted.

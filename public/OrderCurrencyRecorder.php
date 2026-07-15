@@ -44,8 +44,23 @@ class OrderCurrencyRecorder {
 		$currency = $order->get_currency();
 		$total    = (float) $order->get_total();
 
+		/**
+		 * Fires immediately before this plugin locks in the order's
+		 * currency/rate/base-total metadata at checkout — the last point
+		 * an integration could still inspect the order in its pre-locked
+		 * state.
+		 *
+		 * @param int    $orderId  The order being locked.
+		 * @param string $currency The currency the order was placed in.
+		 * @param string $base     The store's base currency code.
+		 */
+		do_action( 'wcmcs_before_checkout_currency_lock', $orderId, $currency, $base );
+
 		if ( $currency === $base ) {
 			$orderRepository->record_order_currency( $orderId, $currency, 1.0, $base, $total );
+
+			do_action( 'wcmcs_after_checkout_currency_lock', $orderId, $currency, $base, 1.0 );
+
 			return;
 		}
 
@@ -66,5 +81,16 @@ class OrderCurrencyRecorder {
 		$baseTotal = $total / $rate;
 
 		$orderRepository->record_order_currency( $orderId, $currency, $rate, $base, $baseTotal );
+
+		/**
+		 * Fires after this plugin has locked in the order's
+		 * currency/rate/base-total metadata at checkout.
+		 *
+		 * @param int    $orderId  The order that was just locked.
+		 * @param string $currency The currency the order was placed in.
+		 * @param string $base     The store's base currency code.
+		 * @param float  $rate     The rate that was recorded on the order.
+		 */
+		do_action( 'wcmcs_after_checkout_currency_lock', $orderId, $currency, $base, $rate );
 	}
 }

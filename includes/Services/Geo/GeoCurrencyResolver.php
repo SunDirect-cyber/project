@@ -65,17 +65,16 @@ class GeoCurrencyResolver {
 		$base    = $this->currencyService->baseCurrency()->code();
 
 		if ( null === $country ) {
-			return array( 'country' => null, 'currency' => $base, 'detected' => false );
+			return $this->filterResult( array( 'country' => null, 'currency' => $base, 'detected' => false ), $base );
 		}
 
 		$currency = CountryCurrencyMap::currencyForCountry( $country );
 
 		if ( null === $currency ) {
-			return array( 'country' => $country, 'currency' => $base, 'detected' => true );
+			return $this->filterResult( array( 'country' => $country, 'currency' => $base, 'detected' => true ), $base );
 		}
 
-		$enabled = (array) get_option( 'wcmcs_enabled_currencies', array() );
-		$enabled = array_map( 'strtoupper', $enabled );
+		$enabled = $this->currencyService->enabledCurrencyCodes();
 
 		// A currency the store hasn't turned on isn't a usable suggestion
 		// — fall back to base rather than offering something checkout
@@ -84,7 +83,24 @@ class GeoCurrencyResolver {
 			$currency = $base;
 		}
 
-		return array( 'country' => $country, 'currency' => $currency, 'detected' => true );
+		return $this->filterResult( array( 'country' => $country, 'currency' => $currency, 'detected' => true ), $base );
+	}
+
+	/**
+	 * @param array{country: ?string, currency: string, detected: bool} $result
+	 * @return array{country: ?string, currency: string, detected: bool}
+	 */
+	private function filterResult( array $result, string $base ): array {
+		/**
+		 * Filters the geolocation result before it's cached and used to
+		 * suggest or auto-apply a currency — the hook point for a custom
+		 * IP-to-country source, a country/currency override for a
+		 * specific market, or forcing detection off for certain visitors.
+		 *
+		 * @param array{country: ?string, currency: string, detected: bool} $result
+		 * @param string $base The store's base currency code.
+		 */
+		return (array) apply_filters( 'wcmcs_geolocation_result', $result, $base );
 	}
 
 	private function cacheKeyForCurrentVisitor(): ?string {

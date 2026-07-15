@@ -52,8 +52,35 @@ class CurrencyPersistenceService {
 		return $this->session->getSource();
 	}
 
+	/**
+	 * The single place a currency switch actually happens, regardless of
+	 * which of this plugin's own entry points triggered it (the switcher
+	 * widget's AJAX call, a ?currency= link, geolocation auto-detection).
+	 * Centralizing it here — rather than each caller firing its own
+	 * do_action() — is what guarantees the wcmcs_currency_switched hook
+	 * fires for every switch path, including geolocation auto-detection,
+	 * which used to call setCurrency() directly with no hook at all.
+	 */
 	public function setCurrency( string $code, string $source = SessionService::SOURCE_MANUAL ): void {
-		$code = strtoupper( trim( $code ) );
+		$code     = strtoupper( trim( $code ) );
+		$previous = $this->getCurrency();
+
+		if ( $previous === $code ) {
+			return; // Not actually a switch — nothing to persist or announce.
+		}
+
+		/**
+		 * Fires immediately before a currency switch is persisted.
+		 * Returning here doesn't cancel the switch (this plugin doesn't
+		 * support cancelling one) — this is for side effects (logging,
+		 * syncing to an external system) that need to see the *previous*
+		 * currency before it's overwritten.
+		 *
+		 * @param string      $code     The currency about to become active.
+		 * @param string      $source   One of SessionService::SOURCE_*.
+		 * @param string|null $previous The currency being switched away from.
+		 */
+		do_action( 'wcmcs_before_currency_switch', $code, $source, $previous );
 
 		if ( is_user_logged_in() ) {
 			update_user_meta( get_current_user_id(), self::USER_META_CURRENCY, $code );
@@ -64,6 +91,19 @@ class CurrencyPersistenceService {
 		// logged-in user's *next* request reads before user meta is
 		// consulted, and it's the only storage a guest has at all.
 		$this->session->setCurrency( $code, $source );
+
+		/**
+		 * Fires immediately after a currency switch has been persisted.
+		 * This is the plugin's original currency-switch hook, kept under
+		 * its existing name for backwards compatibility with any
+		 * integration already using it — wcmcs_before_currency_switch
+		 * above is the new addition, not a replacement.
+		 *
+		 * @param string      $code     The now-active currency.
+		 * @param string      $source   One of SessionService::SOURCE_*.
+		 * @param string|null $previous The currency that was switched away from.
+		 */
+		do_action( 'wcmcs_currency_switched', $code, $source, $previous );
 	}
 
 	/**
