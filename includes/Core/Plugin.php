@@ -240,6 +240,7 @@ final class Plugin {
 		\WCMCS\Frontend\PriceConverter::register();
 		\WCMCS\Frontend\ShippingCostConverter::register();
 		\WCMCS\Frontend\CouponConverter::register();
+		\WCMCS\Frontend\GatewayCurrencyGuard::register();
 		\WCMCS\Frontend\OrderCurrencyRecorder::register();
 		\WCMCS\Frontend\GeoSuggestionController::register();
 

@@ -382,7 +382,28 @@ class PriceConverter {
 		return true;
 	}
 
+	private static bool $forceBaseCurrency = false;
+
+	/**
+	 * Used by GatewayCurrencyGuard: when the shopper's chosen payment
+	 * gateway doesn't support their active currency, this forces every
+	 * price/currency filter in this class (and, since they gate through
+	 * isApplicable()/activeCurrency() too, ShippingCostConverter and
+	 * CouponConverter) to behave exactly as if the store's base currency
+	 * were active — for this request only. Nothing persists; the
+	 * shopper's actual currency selection is untouched for their next
+	 * page view.
+	 */
+	public static function forceBaseCurrency( bool $force = true ): void {
+		self::$forceBaseCurrency = $force;
+		self::$activeCurrencyCache = null;
+	}
+
 	private static function activeCurrency(): ?string {
+		if ( self::$forceBaseCurrency ) {
+			return null;
+		}
+
 		if ( null !== self::$activeCurrencyCache ) {
 			return self::$activeCurrencyCache;
 		}

@@ -42,6 +42,15 @@ class AdminMenu {
 			self::SLUG,
 			array( RateHistoryPage::class, 'render' )
 		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'Payment Gateways', 'wc-multicurrency-switcher' ),
+			__( 'Payment Gateways', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			'wcmcs-gateways',
+			array( GatewayMatrixPage::class, 'render' )
+		);
 	}
 
 	/**
