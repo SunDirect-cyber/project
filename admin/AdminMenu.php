@@ -18,6 +18,7 @@ class AdminMenu {
 	public const SLUG_EXCHANGE_RATES = 'wcmcs-exchange-rates';
 	public const SLUG_GATEWAYS       = 'wcmcs-gateways';
 	public const SLUG_CURRENCIES     = 'wcmcs-currencies';
+	public const SLUG_PROVIDERS      = 'wcmcs-providers';
 
 	private static string $exchangeRatesHook = '';
 
@@ -64,6 +65,15 @@ class AdminMenu {
 			self::CAPABILITY,
 			self::SLUG_EXCHANGE_RATES,
 			array( RateHistoryPage::class, 'render' )
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'Rate Providers', 'wc-multicurrency-switcher' ),
+			__( 'Rate Providers', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			self::SLUG_PROVIDERS,
+			array( RateProviderConfigPage::class, 'render' )
 		);
 
 		$gatewaysHook = add_submenu_page(

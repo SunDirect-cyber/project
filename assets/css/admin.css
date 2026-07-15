@@ -201,3 +201,70 @@
 	max-width: 480px;
 	margin-top: 12px;
 }
+
+.wcmcs-rate-providers .wcmcs-cron-status {
+	list-style: none;
+	margin: 12px 0;
+	padding: 0;
+}
+
+.wcmcs-rate-providers .wcmcs-cron-status li {
+	margin-bottom: 6px;
+}
+
+.wcmcs-rate-providers .wcmcs-cron-result--success {
+	color: #1a7431;
+	font-weight: 600;
+}
+
+.wcmcs-rate-providers .wcmcs-cron-result--failure {
+	color: #a02222;
+	font-weight: 600;
+}
+
+.wcmcs-rate-providers .wcmcs-recent-errors {
+	background: #fbeaea;
+	border-radius: 4px;
+	padding: 10px 14px;
+	max-width: 720px;
+}
+
+.wcmcs-rate-providers .wcmcs-provider-list {
+	max-width: 820px;
+	margin: 16px 0;
+}
+
+.wcmcs-rate-providers .wcmcs-provider-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 10px 12px;
+	margin-bottom: 6px;
+	cursor: grab;
+	flex-wrap: wrap;
+}
+
+.wcmcs-rate-providers .wcmcs-provider-row__handle {
+	color: #8c8f94;
+}
+
+.wcmcs-rate-providers .wcmcs-provider-row__label {
+	font-weight: 600;
+	min-width: 220px;
+}
+
+.wcmcs-rate-providers .wcmcs-provider-row__status {
+	color: #646970;
+	font-size: 12px;
+}
+
+.wcmcs-status--ok {
+	color: #1a7431;
+}
+
+.wcmcs-status--error {
+	color: #a02222;
+}

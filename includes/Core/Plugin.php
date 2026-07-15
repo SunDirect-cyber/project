@@ -240,6 +240,7 @@ final class Plugin {
 		\WCMCS\Admin\RateAjaxController::register();
 		\WCMCS\Admin\RateHistoryAjaxController::register();
 		\WCMCS\Admin\CurrencyManagementAjaxController::register();
+		\WCMCS\Admin\RateProviderConfigAjaxController::register();
 		\WCMCS\Admin\AdminMenu::register();
 
 		\WCMCS\Services\Currency\CurrencyOverrideService::register();

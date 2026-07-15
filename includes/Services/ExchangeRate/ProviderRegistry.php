@@ -49,6 +49,17 @@ class ProviderRegistry {
 	}
 
 	/**
+	 * Builds a single provider in isolation — used by the admin
+	 * "Test Connection" button, which needs to try exactly one provider
+	 * on demand rather than the whole priority chain.
+	 */
+	public function buildProvider( string $slug ): ?RateProviderInterface {
+		$factories = $this->factories();
+
+		return isset( $factories[ $slug ] ) ? $factories[ $slug ]() : null;
+	}
+
+	/**
 	 * Builds every provider, ordered per the admin's saved priority.
 	 * Unknown slugs (e.g. left over from a removed provider) are ignored;
 	 * known slugs missing from a saved priority list are appended at the

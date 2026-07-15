@@ -97,6 +97,20 @@ class Cron {
 
 		$results = $rateService->refreshAll( $base, $targets );
 
+		// Distinct from RateFailureMonitor's "last *successful* sync"
+		// timestamp — this is "last time the cron actually ran, and what
+		// happened", which the admin's Rate Providers screen shows even
+		// when every currency happened to fail.
+		$anySuccess = false;
+		foreach ( $results as $result ) {
+			if ( null !== $result['rate'] ) {
+				$anySuccess = true;
+				break;
+			}
+		}
+		update_option( 'wcmcs_last_cron_run_at', time() );
+		update_option( 'wcmcs_last_cron_result', empty( $results ) ? 'skipped' : ( $anySuccess ? 'success' : 'failure' ) );
+
 		/** @var \WCMCS\Core\RateFailureMonitor $monitor */
 		$monitor = $plugin->container()->get( 'rate_failure_monitor' );
 		$monitor->recordRefreshResult( $results );
