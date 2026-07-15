@@ -12,6 +12,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 require_once __DIR__ . '/includes/Core/Installer.php';
 require_once __DIR__ . '/includes/Core/Cron.php';
+require_once __DIR__ . '/includes/Core/AnalyticsCron.php';
 require_once __DIR__ . '/includes/Core/CapabilityManager.php';
 
 function wcmcs_uninstall_single_site(): void {
@@ -58,6 +59,7 @@ function wcmcs_uninstall_single_site(): void {
 
 	// Cron.
 	\WCMCS\Core\Cron::unschedule();
+	\WCMCS\Core\AnalyticsCron::unschedule();
 
 	// Capability granted to administrator/shop_manager at activation.
 	\WCMCS\Core\CapabilityManager::removeFromAllRoles();

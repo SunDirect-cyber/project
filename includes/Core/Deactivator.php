@@ -15,5 +15,6 @@ class Deactivator {
 
 	public static function deactivate(): void {
 		Cron::unschedule();
+		AnalyticsCron::unschedule();
 	}
 }

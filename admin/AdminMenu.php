@@ -22,6 +22,7 @@ class AdminMenu {
 	public const SLUG_DISPLAY        = 'wcmcs-display';
 	public const SLUG_IMPORT_EXPORT  = 'wcmcs-import-export';
 	public const SLUG_ACTIVITY_LOG   = 'wcmcs-activity-log';
+	public const SLUG_ANALYTICS      = 'wcmcs-analytics';
 
 	private static string $exchangeRatesHook = '';
 
@@ -95,6 +96,15 @@ class AdminMenu {
 			self::CAPABILITY,
 			self::SLUG_DISPLAY,
 			array( DisplaySettingsPage::class, 'render' )
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'Analytics', 'wc-multicurrency-switcher' ),
+			__( 'Analytics', 'wc-multicurrency-switcher' ),
+			self::CAPABILITY,
+			self::SLUG_ANALYTICS,
+			array( AnalyticsPage::class, 'render' )
 		);
 
 		add_submenu_page(

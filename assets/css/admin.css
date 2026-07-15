@@ -283,3 +283,24 @@
 	max-width: 600px;
 	margin-bottom: 20px;
 }
+
+.wcmcs-analytics__controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin: 12px 0;
+}
+
+.wcmcs-analytics__charts {
+	display: flex;
+	gap: 24px;
+	flex-wrap: wrap;
+	margin: 16px 0 24px;
+}
+
+.wcmcs-analytics__charts canvas {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	max-width: 100%;
+}

@@ -79,6 +79,7 @@ class Activator {
 
 	private static function schedule_cron_events(): void {
 		Cron::schedule();
+		AnalyticsCron::schedule();
 	}
 
 	/**

@@ -240,14 +240,26 @@ final class Plugin {
 			static fn () => new \WCMCS\Services\RevenueByCurrencyReport()
 		);
 
+		$this->container->set(
+			'stats_aggregation_service',
+			static fn () => new \WCMCS\Services\Analytics\CurrencyStatsAggregationService()
+		);
+
+		$this->container->set(
+			'stats_repository',
+			static fn () => new \WCMCS\Services\Analytics\CurrencyStatsRepository()
+		);
+
 		do_action( 'wcmcs_register_services', $this->container );
 
 		Cron::register();
+		AnalyticsCron::register();
 
 		\WCMCS\Admin\RateAjaxController::register();
 		\WCMCS\Admin\RateHistoryAjaxController::register();
 		\WCMCS\Admin\CurrencyManagementAjaxController::register();
 		\WCMCS\Admin\RateProviderConfigAjaxController::register();
+		\WCMCS\Admin\AnalyticsAjaxController::register();
 		\WCMCS\Admin\AdminMenu::register();
 
 		\WCMCS\Services\Currency\CurrencyOverrideService::register();
