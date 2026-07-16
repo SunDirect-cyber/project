@@ -1,6 +1,7 @@
 <?php
 namespace WCMCS\Admin;
 
+use WCMCS\Compat\Migration\CompetitorImporter;
 use WCMCS\Core\Plugin;
 use WCMCS\Core\SettingsPortability;
 
@@ -48,6 +49,28 @@ class ImportExportPage {
 	public static function render(): void {
 		if ( ! current_user_can( AdminMenu::CAPABILITY ) ) {
 			return;
+		}
+
+		$detected = CompetitorImporter::detectAvailable();
+
+		if ( ! empty( $detected ) ) {
+			wp_enqueue_script( 'wcmcs-competitor-import', WCMCS_URL . 'assets/js/competitor-import.js', array(), WCMCS_VERSION, true );
+			wp_localize_script(
+				'wcmcs-competitor-import',
+				'wcmcsCompetitorImport',
+				array(
+					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'nonce'   => wp_create_nonce( CompetitorImportAjaxController::NONCE ),
+					'i18n'    => array(
+						'previewing'  => __( 'Checking…', 'wc-multicurrency-switcher' ),
+						'importing'   => __( 'Importing…', 'wc-multicurrency-switcher' ),
+						'previewFailed' => __( 'Could not read that plugin\'s settings.', 'wc-multicurrency-switcher' ),
+						'importFailed'  => __( 'Import failed.', 'wc-multicurrency-switcher' ),
+						'noneFound'     => __( 'No currencies found.', 'wc-multicurrency-switcher' ),
+						'confirm'       => __( 'Import these currencies? They\'ll be added to your enabled currencies list (nothing already enabled will be removed).', 'wc-multicurrency-switcher' ),
+					),
+				)
+			);
 		}
 
 		$importResult = null;
@@ -105,6 +128,23 @@ class ImportExportPage {
 				<input type="file" name="wcmcs_import_file" accept="application/json,.json" required>
 				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Import', 'wc-multicurrency-switcher' ); ?></button></p>
 			</form>
+
+			<?php if ( ! empty( $detected ) ) : ?>
+				<h2><?php esc_html_e( 'Import from another plugin', 'wc-multicurrency-switcher' ); ?></h2>
+				<p>
+					<?php esc_html_e( 'Settings data from another multi-currency plugin was found on this site. Only the enabled currency list is imported (never rates or pricing rules) — this plugin fetches its own fresh exchange rates once a currency is enabled. Review the preview before confirming.', 'wc-multicurrency-switcher' ); ?>
+				</p>
+				<div id="wcmcs-competitor-import">
+					<?php foreach ( $detected as $pluginKey ) : ?>
+						<div class="wcmcs-competitor-import-row" data-wcmcs-competitor="<?php echo esc_attr( $pluginKey ); ?>">
+							<strong><?php echo esc_html( CompetitorImporter::label( $pluginKey ) ); ?></strong>
+							<button type="button" class="button" data-wcmcs-competitor-preview="<?php echo esc_attr( $pluginKey ); ?>"><?php esc_html_e( 'Preview', 'wc-multicurrency-switcher' ); ?></button>
+							<span class="wcmcs-status" data-wcmcs-competitor-status="<?php echo esc_attr( $pluginKey ); ?>"></span>
+							<div class="wcmcs-competitor-preview-result" data-wcmcs-competitor-preview-result="<?php echo esc_attr( $pluginKey ); ?>" hidden></div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 		</div>
 		<?php
 	}

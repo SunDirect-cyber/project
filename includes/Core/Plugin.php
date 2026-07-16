@@ -307,6 +307,7 @@ final class Plugin {
 		\WCMCS\Api\StoreApiController::register();
 		\WCMCS\Admin\WebhooksAjaxController::register();
 		\WCMCS\Admin\ApiAccessAjaxController::register();
+		\WCMCS\Admin\CompetitorImportAjaxController::register();
 		\WCMCS\Admin\AdminMenu::register();
 
 		\WCMCS\Services\Currency\CurrencyOverrideService::register();
