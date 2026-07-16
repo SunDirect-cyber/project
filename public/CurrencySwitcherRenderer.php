@@ -30,8 +30,8 @@ class CurrencySwitcherRenderer {
 	private CurrencyPersistenceService $persistenceService;
 
 	public function __construct( CurrencyService $currencyService, CurrencyPersistenceService $persistenceService ) {
-		$this->currencyService     = $currencyService;
-		$this->persistenceService  = $persistenceService;
+		$this->currencyService    = $currencyService;
+		$this->persistenceService = $persistenceService;
 	}
 
 	public static function assetsNeeded(): bool {
@@ -127,8 +127,8 @@ class CurrencySwitcherRenderer {
 		?>
 		<noscript>
 			<!-- Only ever rendered by the browser when JS is disabled — hides
-			     the (otherwise unclickable, JS-driven) widget above and shows
-			     these plain links instead. -->
+				the (otherwise unclickable, JS-driven) widget above and shows
+				these plain links instead. -->
 			<style>.wcmcs-switcher--dropdown,.wcmcs-switcher--buttons,.wcmcs-switcher--flag-grid{display:none}</style>
 			<ul class="wcmcs-switcher wcmcs-switcher--noscript">
 				<?php foreach ( $options as $option ) : ?>
@@ -181,7 +181,7 @@ class CurrencySwitcherRenderer {
 					data-currency="<?php echo esc_attr( $option['code'] ); ?>"
 					aria-pressed="<?php echo $option['code'] === $current ? 'true' : 'false'; ?>"
 				>
-					<?php echo $this->flagOrBadge( $option['code'], $args ); ?>
+					<?php echo $this->flagOrBadge( $option['code'], $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- flagOrBadge() already escapes its own output internally (esc_attr/esc_html), see its docblock. ?>
 					<?php echo esc_html( $this->optionLabel( $option, $args ) ); ?>
 				</button>
 			<?php endforeach; ?>
@@ -208,7 +208,7 @@ class CurrencySwitcherRenderer {
 					aria-pressed="<?php echo $option['code'] === $current ? 'true' : 'false'; ?>"
 					title="<?php echo esc_attr( $option['name'] ); ?>"
 				>
-					<?php echo $this->flagOrBadge( $option['code'], $args ); ?>
+					<?php echo $this->flagOrBadge( $option['code'], $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- flagOrBadge() already escapes its own output internally (esc_attr/esc_html), see its docblock. ?>
 					<span class="wcmcs-switcher__tile-code"><?php echo esc_html( $option['code'] ); ?></span>
 				</button>
 			<?php endforeach; ?>

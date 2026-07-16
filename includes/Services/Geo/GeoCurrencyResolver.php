@@ -65,13 +65,27 @@ class GeoCurrencyResolver {
 		$base    = $this->currencyService->baseCurrency()->code();
 
 		if ( null === $country ) {
-			return $this->filterResult( array( 'country' => null, 'currency' => $base, 'detected' => false ), $base );
+			return $this->filterResult(
+				array(
+					'country'  => null,
+					'currency' => $base,
+					'detected' => false,
+				),
+				$base
+			);
 		}
 
 		$currency = CountryCurrencyMap::currencyForCountry( $country );
 
 		if ( null === $currency ) {
-			return $this->filterResult( array( 'country' => $country, 'currency' => $base, 'detected' => true ), $base );
+			return $this->filterResult(
+				array(
+					'country'  => $country,
+					'currency' => $base,
+					'detected' => true,
+				),
+				$base
+			);
 		}
 
 		$enabled = $this->currencyService->enabledCurrencyCodes();
@@ -83,7 +97,14 @@ class GeoCurrencyResolver {
 			$currency = $base;
 		}
 
-		return $this->filterResult( array( 'country' => $country, 'currency' => $currency, 'detected' => true ), $base );
+		return $this->filterResult(
+			array(
+				'country'  => $country,
+				'currency' => $currency,
+				'detected' => true,
+			),
+			$base
+		);
 	}
 
 	/**

@@ -157,6 +157,7 @@ class RateRepository {
 
 		$table = $this->table();
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$table} is this repository's own table name, never user data.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT DATE(t1.created_at) AS day, t1.rate AS rate
@@ -168,7 +169,7 @@ class RateRepository {
 						WHERE t2.base_currency = t1.base_currency AND t2.target_currency = t1.target_currency
 							AND DATE(t2.created_at) = DATE(t1.created_at)
 					)
-				ORDER BY day ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				ORDER BY day ASC",
 				strtoupper( $base ),
 				strtoupper( $target ),
 				$fromDate,
@@ -176,6 +177,7 @@ class RateRepository {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$result = array();
 

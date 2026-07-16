@@ -77,7 +77,11 @@ class PricingRuleService {
 		$rule = $this->rules->get( strtoupper( $currency ), CurrencyRuleRepository::TYPE_ROUNDING );
 
 		if ( null === $rule ) {
-			return array( 'mode' => RoundingRule::MODE_NONE, 'step' => 1.0, 'offset' => 0.0 );
+			return array(
+				'mode'   => RoundingRule::MODE_NONE,
+				'step'   => 1.0,
+				'offset' => 0.0,
+			);
 		}
 
 		$config = json_decode( $rule['rule_value'], true );
@@ -91,13 +95,19 @@ class PricingRuleService {
 
 	public function setRoundingConfig( string $currency, string $mode, float $step = 1.0, float $offset = 0.01 ): void {
 		if ( ! in_array( $mode, RoundingRule::modes(), true ) ) {
-			throw new \InvalidArgumentException( sprintf( 'Invalid rounding mode "%s".', $mode ) );
+			throw new \InvalidArgumentException( sprintf( 'Invalid rounding mode "%s".', $mode ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- internal validation error, a programmer bug never rendered to a browser.
 		}
 
 		$this->rules->upsert(
 			strtoupper( $currency ),
 			CurrencyRuleRepository::TYPE_ROUNDING,
-			wp_json_encode( array( 'mode' => $mode, 'step' => $step, 'offset' => $offset ) )
+			wp_json_encode(
+				array(
+					'mode'   => $mode,
+					'step'   => $step,
+					'offset' => $offset,
+				)
+			)
 		);
 	}
 
@@ -130,7 +140,10 @@ class PricingRuleService {
 			return null;
 		}
 
-		return array( 'min' => (float) $config['min'], 'max' => (float) $config['max'] );
+		return array(
+			'min' => (float) $config['min'],
+			'max' => (float) $config['max'],
+		);
 	}
 
 	public function setRateBounds( string $currency, float $min, float $max ): void {
@@ -141,7 +154,12 @@ class PricingRuleService {
 		$this->rules->upsert(
 			strtoupper( $currency ),
 			CurrencyRuleRepository::TYPE_RATE_BOUNDS,
-			wp_json_encode( array( 'min' => $min, 'max' => $max ) )
+			wp_json_encode(
+				array(
+					'min' => $min,
+					'max' => $max,
+				)
+			)
 		);
 	}
 

@@ -44,7 +44,7 @@ class GeoSuggestionController {
 
 		/** @var GeoSuggestionService $suggestionService */
 		$suggestionService = Plugin::instance()->container()->get( 'geo_suggestion_service' );
-		$suggestion         = $suggestionService->getSuggestion();
+		$suggestion        = $suggestionService->getSuggestion();
 
 		if ( null === $suggestion ) {
 			return;
@@ -52,8 +52,8 @@ class GeoSuggestionController {
 
 		/** @var \WCMCS\Services\CurrencyService $currencyService */
 		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
-		$currency         = $currencyService->get( $suggestion['currency'] );
-		$currencyLabel    = $currency instanceof Currency ? sprintf( '%s (%s)', $currency->name(), $currency->code() ) : $suggestion['currency'];
+		$currency        = $currencyService->get( $suggestion['currency'] );
+		$currencyLabel   = $currency instanceof Currency ? sprintf( '%s (%s)', $currency->name(), $currency->code() ) : $suggestion['currency'];
 
 		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_enqueue_script( 'wcmcs-geo-suggestion', WCMCS_URL . "assets/js/geo-suggestion{$suffix}.js", array(), WCMCS_VERSION, true );
@@ -61,10 +61,10 @@ class GeoSuggestionController {
 			'wcmcs-geo-suggestion',
 			'wcmcsGeoSuggestion',
 			array(
-				'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
-				'switchNonce'   => wp_create_nonce( CurrencySwitchController::ACTION ),
-				'dismissNonce'  => wp_create_nonce( self::DISMISS_ACTION ),
-				'currency'      => $suggestion['currency'],
+				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+				'switchNonce'  => wp_create_nonce( CurrencySwitchController::ACTION ),
+				'dismissNonce' => wp_create_nonce( self::DISMISS_ACTION ),
+				'currency'     => $suggestion['currency'],
 			)
 		);
 

@@ -183,7 +183,7 @@ class PriceConverter {
 
 		/** @var \WCMCS\Services\CurrencyService $currencyService */
 		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
-		$currency         = $currencyService->get( $active );
+		$currency        = $currencyService->get( $active );
 
 		return null !== $currency ? $currency->decimals() : $decimals;
 	}
@@ -570,7 +570,7 @@ class PriceConverter {
 	 * page view.
 	 */
 	public static function forceBaseCurrency( bool $force = true ): void {
-		self::$forceBaseCurrency = $force;
+		self::$forceBaseCurrency   = $force;
 		self::$activeCurrencyCache = null;
 	}
 
@@ -593,7 +593,7 @@ class PriceConverter {
 
 		/** @var \WCMCS\Services\CurrencyService $currencyService */
 		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
-		$enabled          = $currencyService->enabledCurrencyCodes();
+		$enabled         = $currencyService->enabledCurrencyCodes();
 
 		// A stale cookie/user-meta value for a currency the store no
 		// longer offers should never be trusted.

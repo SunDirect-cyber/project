@@ -114,7 +114,10 @@ class AnomalyDetectionService {
 			) > 0;
 
 			if ( $hasTraffic ) {
-				$anomalies[] = array( 'currency' => $currency, 'days' => $days );
+				$anomalies[] = array(
+					'currency' => $currency,
+					'days'     => $days,
+				);
 			}
 		}
 

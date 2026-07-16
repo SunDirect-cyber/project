@@ -37,7 +37,7 @@ class Container {
 		}
 
 		if ( ! isset( $this->factories[ $id ] ) ) {
-			throw new \RuntimeException( sprintf( 'No service registered for "%s".', $id ) );
+			throw new \RuntimeException( sprintf( 'No service registered for "%s".', $id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- internal DI error, a programmer bug never rendered to a browser.
 		}
 
 		$this->instances[ $id ] = ( $this->factories[ $id ] )( $this );

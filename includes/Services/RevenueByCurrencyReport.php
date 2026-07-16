@@ -60,7 +60,10 @@ class RevenueByCurrencyReport {
 		);
 
 		return array_map(
-			static fn ( array $row ) => array( 'currency' => (string) $row['currency'], 'total' => (float) $row['total'] ),
+			static fn ( array $row ) => array(
+				'currency' => (string) $row['currency'],
+				'total'    => (float) $row['total'],
+			),
 			$rows ?: array()
 		);
 	}
@@ -73,6 +76,7 @@ class RevenueByCurrencyReport {
 
 		$statusPlaceholders = implode( ',', array_fill( 0, count( self::PAID_STATUSES ), '%s' ) );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names/status placeholder list, never user data.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT pm_currency.meta_value AS currency, SUM(pm_total.meta_value + 0) AS total
@@ -80,14 +84,18 @@ class RevenueByCurrencyReport {
 				INNER JOIN {$wpdb->postmeta} pm_currency ON pm_currency.post_id = p.ID AND pm_currency.meta_key = '_order_currency'
 				INNER JOIN {$wpdb->postmeta} pm_total ON pm_total.post_id = p.ID AND pm_total.meta_key = '_order_total'
 				WHERE p.post_type = 'shop_order' AND p.post_status IN ({$statusPlaceholders}) AND p.post_date_gmt >= %s
-				GROUP BY pm_currency.meta_value", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				GROUP BY pm_currency.meta_value",
 				array_merge( self::PAID_STATUSES, array( $since ) )
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array_map(
-			static fn ( array $row ) => array( 'currency' => (string) $row['currency'], 'total' => (float) $row['total'] ),
+			static fn ( array $row ) => array(
+				'currency' => (string) $row['currency'],
+				'total'    => (float) $row['total'],
+			),
 			$rows ?: array()
 		);
 	}

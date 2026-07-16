@@ -18,11 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class SessionService {
 
-	private const KEY          = 'wcmcs_currency';
-	private const SOURCE_KEY   = 'wcmcs_currency_source';
-	private const COOKIE_KEY   = 'wcmcs_currency';
+	private const KEY               = 'wcmcs_currency';
+	private const SOURCE_KEY        = 'wcmcs_currency_source';
+	private const COOKIE_KEY        = 'wcmcs_currency';
 	private const SOURCE_COOKIE_KEY = 'wcmcs_currency_source';
-	private const COOKIE_TTL   = DAY_IN_SECONDS * 30;
+	private const COOKIE_TTL        = DAY_IN_SECONDS * 30;
 
 	public const SOURCE_MANUAL = 'manual';
 	public const SOURCE_AUTO   = 'auto';

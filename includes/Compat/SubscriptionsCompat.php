@@ -63,8 +63,8 @@ class SubscriptionsCompat {
 	}
 
 	/**
-	 * @param \WC_Order          $renewalOrder
-	 * @param \WC_Subscription   $subscription
+	 * @param \WC_Order        $renewalOrder
+	 * @param \WC_Subscription $subscription
 	 */
 	public static function check_renewal_currency_matches_subscription( $renewalOrder, $subscription ): void {
 		if ( ! $renewalOrder instanceof \WC_Order || ! is_object( $subscription ) || ! method_exists( $subscription, 'get_currency' ) ) {

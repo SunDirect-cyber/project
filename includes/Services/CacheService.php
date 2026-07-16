@@ -44,7 +44,7 @@ class CacheService {
 		global $wpdb;
 
 		$wpdb->query(
-			"DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_" . self::PREFIX . "%' OR option_name LIKE '\\_transient\\_timeout\\_" . self::PREFIX . "%'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_" . self::PREFIX . "%' OR option_name LIKE '\\_transient\\_timeout\\_" . self::PREFIX . "%'" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- table name and a hardcoded class constant, not user data
 		);
 	}
 

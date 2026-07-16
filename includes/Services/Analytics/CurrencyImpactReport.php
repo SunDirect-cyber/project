@@ -58,22 +58,25 @@ class CurrencyImpactReport {
 			}
 		}
 
-		$rows              = array();
-		$totalHistorical   = 0.0;
-		$totalCurrent      = 0.0;
-		$missingDataCount  = 0;
+		$rows             = array();
+		$totalHistorical  = 0.0;
+		$totalCurrent     = 0.0;
+		$missingDataCount = 0;
 
 		foreach ( $orders as $order ) {
 			$currency = $order['currency'];
 
 			if ( $currency === $base ) {
-				$rows[] = array_merge( $order, array(
-					'historical_rate'       => 1.0,
-					'historical_base_value' => (float) $order['total'],
-					'current_rate'          => 1.0,
-					'current_base_value'    => (float) $order['total'],
-					'gain_loss'             => 0.0,
-				) );
+				$rows[]           = array_merge(
+					$order,
+					array(
+						'historical_rate'       => 1.0,
+						'historical_base_value' => (float) $order['total'],
+						'current_rate'          => 1.0,
+						'current_base_value'    => (float) $order['total'],
+						'gain_loss'             => 0.0,
+					)
+				);
 				$totalHistorical += (float) $order['total'];
 				$totalCurrent    += (float) $order['total'];
 				continue;
@@ -85,26 +88,32 @@ class CurrencyImpactReport {
 
 			if ( null === $historicalRate || null === $historicalBase || null === $currentRate || $currentRate <= 0 ) {
 				++$missingDataCount;
-				$rows[] = array_merge( $order, array(
-					'historical_rate'       => $historicalRate,
-					'historical_base_value' => $historicalBase,
-					'current_rate'          => $currentRate,
-					'current_base_value'    => null,
-					'gain_loss'             => null,
-				) );
+				$rows[] = array_merge(
+					$order,
+					array(
+						'historical_rate'       => $historicalRate,
+						'historical_base_value' => $historicalBase,
+						'current_rate'          => $currentRate,
+						'current_base_value'    => null,
+						'gain_loss'             => null,
+					)
+				);
 				continue;
 			}
 
 			$currentBaseValue = (float) $order['total'] / $currentRate;
 			$gainLoss         = $currentBaseValue - $historicalBase;
 
-			$rows[] = array_merge( $order, array(
-				'historical_rate'       => $historicalRate,
-				'historical_base_value' => $historicalBase,
-				'current_rate'          => $currentRate,
-				'current_base_value'    => $currentBaseValue,
-				'gain_loss'             => $gainLoss,
-			) );
+			$rows[] = array_merge(
+				$order,
+				array(
+					'historical_rate'       => $historicalRate,
+					'historical_base_value' => $historicalBase,
+					'current_rate'          => $currentRate,
+					'current_base_value'    => $currentBaseValue,
+					'gain_loss'             => $gainLoss,
+				)
+			);
 
 			$totalHistorical += $historicalBase;
 			$totalCurrent    += $currentBaseValue;
@@ -131,6 +140,7 @@ class CurrencyImpactReport {
 
 		$statusPlaceholders = implode( ',', array_fill( 0, count( self::PAID_STATUSES ), '%s' ) );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- table names/status placeholder list, never user data; array_merge()'s count is count(self::PAID_STATUSES) + 2 dates, which the sniff can't statically resolve.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT o.id AS order_id, o.date_created_gmt AS date, o.currency AS currency, o.total_amount AS total,
@@ -139,11 +149,12 @@ class CurrencyImpactReport {
 				LEFT JOIN {$wpdb->prefix}wc_orders_meta m_rate ON m_rate.order_id = o.id AND m_rate.meta_key = '_wcmcs_exchange_rate'
 				LEFT JOIN {$wpdb->prefix}wc_orders_meta m_base ON m_base.order_id = o.id AND m_base.meta_key = '_wcmcs_base_currency_total'
 				WHERE o.status IN ({$statusPlaceholders}) AND DATE(o.date_created_gmt) BETWEEN %s AND %s
-				ORDER BY o.date_created_gmt DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				ORDER BY o.date_created_gmt DESC",
 				array_merge( self::PAID_STATUSES, array( $fromDate, $toDate ) )
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		return $this->normalize( $rows );
 	}
@@ -156,6 +167,7 @@ class CurrencyImpactReport {
 
 		$statusPlaceholders = implode( ',', array_fill( 0, count( self::PAID_STATUSES ), '%s' ) );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- see queryHpos() above, same reasoning.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT p.ID AS order_id, p.post_date_gmt AS date, pm_currency.meta_value AS currency, pm_total.meta_value AS total,
@@ -166,11 +178,12 @@ class CurrencyImpactReport {
 				LEFT JOIN {$wpdb->postmeta} pm_rate ON pm_rate.post_id = p.ID AND pm_rate.meta_key = '_wcmcs_exchange_rate'
 				LEFT JOIN {$wpdb->postmeta} pm_base ON pm_base.post_id = p.ID AND pm_base.meta_key = '_wcmcs_base_currency_total'
 				WHERE p.post_type = 'shop_order' AND p.post_status IN ({$statusPlaceholders}) AND DATE(p.post_date_gmt) BETWEEN %s AND %s
-				ORDER BY p.post_date_gmt DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				ORDER BY p.post_date_gmt DESC",
 				array_merge( self::PAID_STATUSES, array( $fromDate, $toDate ) )
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		return $this->normalize( $rows );
 	}
@@ -182,12 +195,12 @@ class CurrencyImpactReport {
 	private function normalize( ?array $rows ): array {
 		return array_map(
 			static fn ( array $row ) => array(
-				'order_id'               => (int) $row['order_id'],
-				'date'                   => (string) $row['date'],
-				'currency'               => strtoupper( (string) $row['currency'] ),
-				'total'                  => (float) $row['total'],
-				'historical_rate'        => null !== $row['historical_rate'] ? (float) $row['historical_rate'] : null,
-				'historical_base_value'  => null !== $row['historical_base_value'] ? (float) $row['historical_base_value'] : null,
+				'order_id'              => (int) $row['order_id'],
+				'date'                  => (string) $row['date'],
+				'currency'              => strtoupper( (string) $row['currency'] ),
+				'total'                 => (float) $row['total'],
+				'historical_rate'       => null !== $row['historical_rate'] ? (float) $row['historical_rate'] : null,
+				'historical_base_value' => null !== $row['historical_base_value'] ? (float) $row['historical_base_value'] : null,
 			),
 			$rows ?: array()
 		);

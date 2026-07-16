@@ -80,7 +80,7 @@ class GatewayCurrencyGuard {
 
 		/** @var \WCMCS\Services\CurrencyService $currencyService */
 		$currencyService = $container->get( 'currency_service' );
-		$base             = $currencyService->baseCurrency()->code();
+		$base            = $currencyService->baseCurrency()->code();
 
 		if ( $currency === $base ) {
 			return null;

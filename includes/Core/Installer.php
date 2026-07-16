@@ -26,9 +26,9 @@ class Installer {
 
 		$exchange_rates_table = $wpdb->prefix . 'wcmcs_exchange_rates';
 		$currency_rules_table = $wpdb->prefix . 'wcmcs_currency_rules';
-		$logs_table            = $wpdb->prefix . 'wcmcs_logs';
-		$stats_daily_table     = $wpdb->prefix . 'wcmcs_currency_stats_daily';
-		$events_table          = $wpdb->prefix . 'wcmcs_currency_events';
+		$logs_table           = $wpdb->prefix . 'wcmcs_logs';
+		$stats_daily_table    = $wpdb->prefix . 'wcmcs_currency_stats_daily';
+		$events_table         = $wpdb->prefix . 'wcmcs_currency_events';
 
 		$sql = "
 CREATE TABLE {$exchange_rates_table} (
@@ -140,10 +140,10 @@ CREATE TABLE {$events_table} (
 		}
 
 		if ( ! empty( $existingColumns ) ) {
-			$wpdb->query( "ALTER TABLE {$table} DROP INDEX {$indexName}" ); // phpcs:ignore WordPress.DB.PreparedSQL
+			$wpdb->query( "ALTER TABLE {$table} DROP INDEX {$indexName}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table/index name only, not user data
 		}
 
-		$wpdb->query( "ALTER TABLE {$table} ADD INDEX {$indexName} {$columnsSql}" ); // phpcs:ignore WordPress.DB.PreparedSQL
+		$wpdb->query( "ALTER TABLE {$table} ADD INDEX {$indexName} {$columnsSql}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table/index name only, not user data
 	}
 
 	/**
@@ -168,7 +168,7 @@ CREATE TABLE {$events_table} (
 		);
 
 		foreach ( $tables as $table ) {
-			$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL
+			$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table/index name only, not user data
 		}
 	}
 }

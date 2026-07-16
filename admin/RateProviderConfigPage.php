@@ -105,7 +105,7 @@ class RateProviderConfigPage {
 			<h2><?php esc_html_e( 'Sync Frequency', 'wc-multicurrency-switcher' ); ?></h2>
 			<select id="wcmcs-sync-interval">
 				<?php foreach ( Cron::INTERVALS as $slug => $config ) : ?>
-					<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $currentInterval, $slug ); ?>><?php echo esc_html( $config['label'] ); ?></option>
+					<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $currentInterval, $slug ); ?>><?php echo esc_html( Cron::translatedLabel( $slug ) ); ?></option>
 				<?php endforeach; ?>
 			</select>
 

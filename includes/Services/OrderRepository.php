@@ -18,10 +18,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class OrderRepository {
 
-	private const META_CURRENCY       = '_wcmcs_currency';
-	private const META_EXCHANGE_RATE  = '_wcmcs_exchange_rate';
-	private const META_BASE_CURRENCY  = '_wcmcs_base_currency';
-	private const META_BASE_TOTAL     = '_wcmcs_base_currency_total';
+	private const META_CURRENCY      = '_wcmcs_currency';
+	private const META_EXCHANGE_RATE = '_wcmcs_exchange_rate';
+	private const META_BASE_CURRENCY = '_wcmcs_base_currency';
+	private const META_BASE_TOTAL    = '_wcmcs_base_currency_total';
 
 	/**
 	 * Records which currency an order was placed in, the exchange rate
@@ -53,10 +53,10 @@ class OrderRepository {
 
 		if ( ! $order instanceof \WC_Order ) {
 			return array(
-				'currency'             => null,
-				'exchange_rate'        => null,
-				'base_currency'        => null,
-				'base_currency_total'  => null,
+				'currency'            => null,
+				'exchange_rate'       => null,
+				'base_currency'       => null,
+				'base_currency_total' => null,
 			);
 		}
 

@@ -50,7 +50,7 @@ class EncryptionService {
 			return $plaintext;
 		}
 
-		return self::PREFIX . base64_encode( $iv . $tag . $ciphertext );
+		return self::PREFIX . base64_encode( $iv . $tag . $ciphertext ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- encoding binary ciphertext for storage, not obfuscating code.
 	}
 
 	public static function decrypt( string $value ): string {
@@ -62,7 +62,7 @@ class EncryptionService {
 			return ''; // Can't decrypt without the key material — never return ciphertext as if it were a usable secret.
 		}
 
-		$raw = base64_decode( substr( $value, strlen( self::PREFIX ) ), true );
+		$raw = base64_decode( substr( $value, strlen( self::PREFIX ) ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- decoding stored ciphertext, not deobfuscating code.
 
 		if ( false === $raw || strlen( $raw ) < 28 ) {
 			return '';

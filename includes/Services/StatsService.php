@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class StatsService {
 
-	private const OPTION_PREFIX = 'wcmcs_stats_conversions_';
+	private const OPTION_PREFIX  = 'wcmcs_stats_conversions_';
 	private const RETENTION_DAYS = 90;
 
 	public function recordConversionServed(): void {

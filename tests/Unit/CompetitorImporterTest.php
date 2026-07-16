@@ -32,7 +32,10 @@ class CompetitorImporterTest extends WcmcsUnitTestCase {
 		update_option(
 			'WOOCS_CURRENCIES',
 			array(
-				'USD' => array( 'name' => 'US Dollar', 'is_default' => 1 ),
+				'USD' => array(
+					'name'       => 'US Dollar',
+					'is_default' => 1,
+				),
 				'EUR' => array( 'name' => 'Euro' ),
 				'ZZZ' => array( 'name' => 'Not a real currency' ),
 			)
@@ -62,7 +65,13 @@ class CompetitorImporterTest extends WcmcsUnitTestCase {
 
 	public function test_import_merges_into_existing_enabled_currencies_rather_than_replacing_them(): void {
 		update_option( 'wcmcs_enabled_currencies', array( 'USD' ) );
-		update_option( 'WOOCS_CURRENCIES', array( 'USD' => array(), 'EUR' => array() ) );
+		update_option(
+			'WOOCS_CURRENCIES',
+			array(
+				'USD' => array(),
+				'EUR' => array(),
+			)
+		);
 
 		$result = CompetitorImporter::import( CompetitorImporter::PLUGIN_WOOCS );
 

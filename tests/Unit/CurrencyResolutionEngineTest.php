@@ -76,7 +76,13 @@ class CurrencyResolutionEngineTest extends WcmcsUnitTestCase {
 			->with( 'GBP', SessionService::SOURCE_AUTO );
 
 		$geoResolver = $this->createMock( GeoCurrencyResolver::class );
-		$geoResolver->method( 'resolve' )->willReturn( array( 'country' => 'GB', 'currency' => 'GBP', 'detected' => true ) );
+		$geoResolver->method( 'resolve' )->willReturn(
+			array(
+				'country'  => 'GB',
+				'currency' => 'GBP',
+				'detected' => true,
+			)
+		);
 
 		$this->makeEngine( $persistence, $geoResolver )->resolve();
 	}
@@ -91,7 +97,13 @@ class CurrencyResolutionEngineTest extends WcmcsUnitTestCase {
 			->with( 'EUR', SessionService::SOURCE_AUTO );
 
 		$geoResolver = $this->createMock( GeoCurrencyResolver::class );
-		$geoResolver->method( 'resolve' )->willReturn( array( 'country' => 'DE', 'currency' => 'EUR', 'detected' => true ) );
+		$geoResolver->method( 'resolve' )->willReturn(
+			array(
+				'country'  => 'DE',
+				'currency' => 'EUR',
+				'detected' => true,
+			)
+		);
 
 		$this->makeEngine( $persistence, $geoResolver )->resolve();
 	}

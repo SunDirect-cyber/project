@@ -15,7 +15,10 @@ class RoundingRuleTest extends WcmcsUnitTestCase {
 	}
 
 	public function test_mode_nearest_rounds_to_the_configured_step(): void {
-		$config = array( 'mode' => RoundingRule::MODE_NEAREST, 'step' => 0.50 );
+		$config = array(
+			'mode' => RoundingRule::MODE_NEAREST,
+			'step' => 0.50,
+		);
 
 		$this->assertSame( 19.5, RoundingRule::apply( 19.30, $config ) );
 		$this->assertSame( 19.0, RoundingRule::apply( 19.24, $config ) );
@@ -23,14 +26,21 @@ class RoundingRuleTest extends WcmcsUnitTestCase {
 	}
 
 	public function test_mode_nearest_with_whole_number_step(): void {
-		$config = array( 'mode' => RoundingRule::MODE_NEAREST, 'step' => 1.0 );
+		$config = array(
+			'mode' => RoundingRule::MODE_NEAREST,
+			'step' => 1.0,
+		);
 
 		$this->assertSame( 20.0, RoundingRule::apply( 19.6, $config ) );
 		$this->assertSame( 19.0, RoundingRule::apply( 19.4, $config ) );
 	}
 
 	public function test_mode_charm_rounds_up_then_backs_off_by_the_offset(): void {
-		$config = array( 'mode' => RoundingRule::MODE_CHARM, 'step' => 1.0, 'offset' => 0.01 );
+		$config = array(
+			'mode'   => RoundingRule::MODE_CHARM,
+			'step'   => 1.0,
+			'offset' => 0.01,
+		);
 
 		// 19.30 -> ceil to 20, then 20 - 0.01 = 19.99.
 		$this->assertEqualsWithDelta( 19.99, RoundingRule::apply( 19.30, $config ), 0.0001 );
@@ -42,7 +52,11 @@ class RoundingRuleTest extends WcmcsUnitTestCase {
 		// rounding — ceil(0/1)*1 - 0.01 would be -0.01 without the floor
 		// this class is expected to apply implicitly via ceil() semantics
 		// (ceil(0) is 0, so 0 - 0.01 = -0.01 is the actual risk case).
-		$config = array( 'mode' => RoundingRule::MODE_CHARM, 'step' => 1.0, 'offset' => 0.01 );
+		$config = array(
+			'mode'   => RoundingRule::MODE_CHARM,
+			'step'   => 1.0,
+			'offset' => 0.01,
+		);
 
 		$result = RoundingRule::apply( 0.0, $config );
 
@@ -57,7 +71,11 @@ class RoundingRuleTest extends WcmcsUnitTestCase {
 	}
 
 	public function test_charm_rounding_never_rounds_down_below_the_original_amount_for_positive_input(): void {
-		$config = array( 'mode' => RoundingRule::MODE_CHARM, 'step' => 1.0, 'offset' => 0.01 );
+		$config = array(
+			'mode'   => RoundingRule::MODE_CHARM,
+			'step'   => 1.0,
+			'offset' => 0.01,
+		);
 
 		foreach ( array( 0.01, 1.0, 19.99, 20.0, 149.5 ) as $amount ) {
 			$result = RoundingRule::apply( $amount, $config );
@@ -71,7 +89,10 @@ class RoundingRuleTest extends WcmcsUnitTestCase {
 	}
 
 	public function test_a_non_positive_step_falls_back_to_one(): void {
-		$config = array( 'mode' => RoundingRule::MODE_NEAREST, 'step' => 0 );
+		$config = array(
+			'mode' => RoundingRule::MODE_NEAREST,
+			'step' => 0,
+		);
 
 		$this->assertSame( 20.0, RoundingRule::apply( 19.6, $config ) );
 	}

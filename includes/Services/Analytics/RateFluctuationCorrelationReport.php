@@ -25,7 +25,7 @@ class RateFluctuationCorrelationReport {
 	public function __construct( RateRepository $rateRepository, CurrencyStatsRepository $statsRepository, CurrencyService $currencyService ) {
 		$this->rateRepository  = $rateRepository;
 		$this->statsRepository = $statsRepository;
-		$this->currencyService  = $currencyService;
+		$this->currencyService = $currencyService;
 	}
 
 	/**

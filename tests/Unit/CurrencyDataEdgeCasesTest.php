@@ -78,9 +78,9 @@ class CurrencyDataEdgeCasesTest extends WcmcsUnitTestCase {
 	public function conversionPrecisionCases(): array {
 		return array(
 			'JPY: fractional yen must round to a whole number' => array( 'JPY', 2994.9917, 2995.0 ),
-			'BHD: keeps its third decimal, not truncated to 2'  => array( 'BHD', 37.5928, 37.593 ),
-			'USD: ordinary two-decimal rounding'                => array( 'USD', 19.996, 20.0 ),
-			'USD micro-amount rounds cleanly, no float drift'   => array( 'USD', 0.0092, 0.01 ),
+			'BHD: keeps its third decimal, not truncated to 2' => array( 'BHD', 37.5928, 37.593 ),
+			'USD: ordinary two-decimal rounding' => array( 'USD', 19.996, 20.0 ),
+			'USD micro-amount rounds cleanly, no float drift' => array( 'USD', 0.0092, 0.01 ),
 		);
 	}
 }

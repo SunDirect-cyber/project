@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class RateFailureMonitor {
 
-	private const OPTION_LAST_SUCCESS  = 'wcmcs_last_rate_success_at';
-	private const OPTION_ALERT_SENT    = 'wcmcs_rate_alert_sent';
+	private const OPTION_LAST_SUCCESS     = 'wcmcs_last_rate_success_at';
+	private const OPTION_ALERT_SENT       = 'wcmcs_rate_alert_sent';
 	private const DEFAULT_THRESHOLD_HOURS = 24;
 
 	/**
@@ -65,7 +65,7 @@ class RateFailureMonitor {
 		}
 
 		$thresholdHours = (int) get_option( 'wcmcs_rate_alert_threshold_hours', self::DEFAULT_THRESHOLD_HOURS );
-		$hoursStale      = ( time() - $lastSuccess ) / HOUR_IN_SECONDS;
+		$hoursStale     = ( time() - $lastSuccess ) / HOUR_IN_SECONDS;
 
 		if ( $hoursStale < $thresholdHours ) {
 			return;

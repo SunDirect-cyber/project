@@ -54,11 +54,26 @@ class Block {
 			self::NAME,
 			array(
 				'attributes'      => array(
-					'style'      => array( 'type' => 'string', 'default' => CurrencySwitcherRenderer::defaultStyle() ),
-					'showFlag'   => array( 'type' => 'boolean', 'default' => true ),
-					'showCode'   => array( 'type' => 'boolean', 'default' => true ),
-					'showSymbol' => array( 'type' => 'boolean', 'default' => false ),
-					'showName'   => array( 'type' => 'boolean', 'default' => false ),
+					'style'      => array(
+						'type'    => 'string',
+						'default' => CurrencySwitcherRenderer::defaultStyle(),
+					),
+					'showFlag'   => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'showCode'   => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'showSymbol' => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+					'showName'   => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
 				),
 				'render_callback' => array( self::class, 'render' ),
 			)

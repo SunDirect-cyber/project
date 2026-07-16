@@ -58,7 +58,7 @@ class MultilingualCompat {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- a WooCommerce-defined capability, not WordPress core; WPCS doesn't know WooCommerce's own capability list.
 			return;
 		}
 

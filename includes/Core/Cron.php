@@ -17,9 +17,18 @@ class Cron {
 	public const EVENT_HOOK = 'wcmcs_refresh_exchange_rates';
 
 	public const INTERVALS = array(
-		'hourly'     => array( 'seconds' => HOUR_IN_SECONDS, 'label' => 'Hourly' ),
-		'six_hours'  => array( 'seconds' => HOUR_IN_SECONDS * 6, 'label' => 'Every 6 hours' ),
-		'daily'      => array( 'seconds' => DAY_IN_SECONDS, 'label' => 'Daily' ),
+		'hourly'    => array(
+			'seconds' => HOUR_IN_SECONDS,
+			'label'   => 'Hourly',
+		),
+		'six_hours' => array(
+			'seconds' => HOUR_IN_SECONDS * 6,
+			'label'   => 'Every 6 hours',
+		),
+		'daily'     => array(
+			'seconds' => DAY_IN_SECONDS,
+			'label'   => 'Daily',
+		),
 	);
 
 	public static function register(): void {
@@ -40,11 +49,31 @@ class Cron {
 
 			$schedules[ $slug ] = array(
 				'interval' => $config['seconds'],
-				'display'  => __( $config['label'], 'wc-multicurrency-switcher' ),
+				'display'  => self::translatedLabel( $slug ),
 			);
 		}
 
 		return $schedules;
+	}
+
+	/**
+	 * A literal __() call per slug, rather than __( $config['label'], ... )
+	 * — WordPress's i18n extraction tools can only find and pot-file a
+	 * literal string argument, never a variable, so translating the
+	 * dynamic label directly would silently never actually get translated
+	 * no matter how many translators tried.
+	 */
+	public static function translatedLabel( string $slug ): string {
+		switch ( $slug ) {
+			case 'hourly':
+				return __( 'Hourly', 'wc-multicurrency-switcher' );
+			case 'six_hours':
+				return __( 'Every 6 hours', 'wc-multicurrency-switcher' );
+			case 'daily':
+				return __( 'Daily', 'wc-multicurrency-switcher' );
+			default:
+				return self::INTERVALS[ $slug ]['label'] ?? $slug;
+		}
 	}
 
 	public static function schedule(): void {
@@ -88,7 +117,7 @@ class Cron {
 		}
 
 		/** @var \WCMCS\Services\ExchangeRate\RateService $rateService */
-		$rateService     = $plugin->container()->get( 'rate_service' );
+		$rateService = $plugin->container()->get( 'rate_service' );
 		/** @var \WCMCS\Services\CurrencyService $currencyService */
 		$currencyService = $plugin->container()->get( 'currency_service' );
 
@@ -119,7 +148,12 @@ class Cron {
 				if ( null !== $result['rate'] ) {
 					$webhooks->trigger(
 						\WCMCS\Services\WebhookService::EVENT_RATE_UPDATED,
-						array( 'base' => $base, 'currency' => $currency, 'rate' => $result['rate'], 'source' => $result['source'] )
+						array(
+							'base'     => $base,
+							'currency' => $currency,
+							'rate'     => $result['rate'],
+							'source'   => $result['source'],
+						)
 					);
 				}
 			}

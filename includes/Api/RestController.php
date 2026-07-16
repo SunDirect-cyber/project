@@ -58,8 +58,15 @@ class RestController {
 				'callback'            => array( self::class, 'get_rate_history' ),
 				'permission_callback' => array( self::class, 'permission_check' ),
 				'args'                => array(
-					'target' => array( 'required' => true, 'type' => 'string' ),
-					'limit'  => array( 'required' => false, 'type' => 'integer', 'default' => 30 ),
+					'target' => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'limit'  => array(
+						'required' => false,
+						'type'     => 'integer',
+						'default'  => 30,
+					),
 				),
 			)
 		);
@@ -72,8 +79,14 @@ class RestController {
 				'callback'            => array( self::class, 'get_revenue' ),
 				'permission_callback' => array( self::class, 'permission_check' ),
 				'args'                => array(
-					'from' => array( 'required' => true, 'type' => 'string' ),
-					'to'   => array( 'required' => true, 'type' => 'string' ),
+					'from' => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'to'   => array(
+						'required' => true,
+						'type'     => 'string',
+					),
 				),
 			)
 		);
@@ -86,8 +99,14 @@ class RestController {
 				'callback'            => array( self::class, 'get_impact' ),
 				'permission_callback' => array( self::class, 'permission_check' ),
 				'args'                => array(
-					'from' => array( 'required' => true, 'type' => 'string' ),
-					'to'   => array( 'required' => true, 'type' => 'string' ),
+					'from' => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'to'   => array(
+						'required' => true,
+						'type'     => 'string',
+					),
 				),
 			)
 		);
@@ -100,7 +119,7 @@ class RestController {
 	public static function get_currencies(): \WP_REST_Response {
 		/** @var \WCMCS\Services\CurrencyService $currencyService */
 		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
-		$enabled          = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
+		$enabled         = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
 
 		$data = array();
 
@@ -137,7 +156,13 @@ class RestController {
 			$rates[ $code ] = $rateService->getRate( $base, $code );
 		}
 
-		return new \WP_REST_Response( array( 'base' => $base, 'rates' => $rates ), 200 );
+		return new \WP_REST_Response(
+			array(
+				'base'  => $base,
+				'rates' => $rates,
+			),
+			200
+		);
 	}
 
 	public static function get_rate_history( \WP_REST_Request $request ): \WP_REST_Response {

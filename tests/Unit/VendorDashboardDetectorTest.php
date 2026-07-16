@@ -23,7 +23,7 @@ class VendorDashboardDetectorTest extends WcmcsUnitTestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_detects_a_dokan_seller_dashboard_request(): void {
-		eval( 'function dokan_is_seller_dashboard() { return true; }' );
+		eval( 'function dokan_is_seller_dashboard() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged -- test-only: defines a fresh global function inside an isolated @runInSeparateProcess test.
 
 		$this->assertTrue( VendorDashboardDetector::isVendorDashboard() );
 	}
@@ -32,7 +32,7 @@ class VendorDashboardDetectorTest extends WcmcsUnitTestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_dokan_present_but_not_on_the_dashboard_is_not_flagged(): void {
-		eval( 'function dokan_is_seller_dashboard() { return false; }' );
+		eval( 'function dokan_is_seller_dashboard() { return false; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged -- test-only, see above.
 
 		$this->assertFalse( VendorDashboardDetector::isVendorDashboard() );
 	}
@@ -44,7 +44,7 @@ class VendorDashboardDetectorTest extends WcmcsUnitTestCase {
 		define( 'WCFM_VERSION', '6.9.0' );
 		$GLOBALS['WCFM'] = new \stdClass();
 
-		eval( 'function get_query_var( $name, $default = "" ) { return "wcfm-view" === $name ? "products" : $default; }' );
+		eval( 'function get_query_var( $name, $default = "" ) { return "wcfm-view" === $name ? "products" : $default; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged -- test-only, see above.
 
 		$this->assertTrue( VendorDashboardDetector::isVendorDashboard() );
 	}

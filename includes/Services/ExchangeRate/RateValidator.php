@@ -69,7 +69,10 @@ class RateValidator {
 			}
 		}
 
-		return array( 'valid' => true, 'reason' => null );
+		return array(
+			'valid'  => true,
+			'reason' => null,
+		);
 	}
 
 	/**
@@ -88,9 +91,15 @@ class RateValidator {
 	private function reject( string $base, string $target, float $rate, string $reasonCode, string $message ): array {
 		$this->logger->warning(
 			sprintf( '[rate-validator] Rejected %s->%s rate: %s', $base, $target, $message ),
-			array( 'rate' => $rate, 'reason' => $reasonCode )
+			array(
+				'rate'   => $rate,
+				'reason' => $reasonCode,
+			)
 		);
 
-		return array( 'valid' => false, 'reason' => $reasonCode );
+		return array(
+			'valid'  => false,
+			'reason' => $reasonCode,
+		);
 	}
 }

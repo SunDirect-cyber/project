@@ -75,7 +75,12 @@ function wcmcs_uninstall_single_site(): void {
 }
 
 if ( is_multisite() ) {
-	$site_ids = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
+	$site_ids = get_sites(
+		array(
+			'fields' => 'ids',
+			'number' => 0,
+		)
+	);
 
 	foreach ( $site_ids as $site_id ) {
 		switch_to_blog( (int) $site_id );

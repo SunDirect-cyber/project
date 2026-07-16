@@ -95,7 +95,10 @@ class BaseCurrencyChangeGuard {
 			$activity = $container->get( 'activity_logger' );
 			$activity->record(
 				'Store base currency changed',
-				array( 'from' => $oldCode, 'to' => $newCode )
+				array(
+					'from' => $oldCode,
+					'to'   => $newCode,
+				)
 			);
 		}
 
@@ -161,7 +164,7 @@ class BaseCurrencyChangeGuard {
 	}
 
 	public static function maybe_show_notice(): void {
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- a WooCommerce-defined capability, not WordPress core; WPCS doesn't know WooCommerce's own capability list.
 			return;
 		}
 

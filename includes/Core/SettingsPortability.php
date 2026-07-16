@@ -97,7 +97,11 @@ class SettingsPortability {
 		$errors = self::validate( $data );
 
 		if ( ! empty( $errors ) ) {
-			return array( 'success' => false, 'errors' => $errors, 'applied' => array() );
+			return array(
+				'success' => false,
+				'errors'  => $errors,
+				'applied' => array(),
+			);
 		}
 
 		$applied = array();
@@ -120,7 +124,11 @@ class SettingsPortability {
 			}
 		}
 
-		return array( 'success' => true, 'errors' => array(), 'applied' => $applied );
+		return array(
+			'success' => true,
+			'errors'  => array(),
+			'applied' => $applied,
+		);
 	}
 
 	/**

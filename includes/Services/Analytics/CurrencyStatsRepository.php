@@ -86,13 +86,13 @@ class CurrencyStatsRepository {
 	public function hasAnyData(): bool {
 		global $wpdb;
 
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table()} LIMIT 1" ) > 0; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table()} LIMIT 1" ) > 0; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name only, not user data
 	}
 
 	public function earliestDate(): ?string {
 		global $wpdb;
 
-		$date = $wpdb->get_var( "SELECT MIN(stat_date) FROM {$this->table()}" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$date = $wpdb->get_var( "SELECT MIN(stat_date) FROM {$this->table()}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name only, not user data
 
 		return $date ?: null;
 	}

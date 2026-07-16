@@ -33,16 +33,18 @@ class GeographicInsightsReport {
 	public function countryVsCurrency( string $fromDate, string $toDate ): array {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$this->table()} is this repository's own table name, never user data.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT country, to_currency, COUNT(*) AS visits FROM {$this->table()}
 				WHERE event_type = 'country_visit' AND country IS NOT NULL AND created_at BETWEEN %s AND %s
-				GROUP BY country, to_currency", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				GROUP BY country, to_currency",
 				$fromDate . ' 00:00:00',
 				$toDate . ' 23:59:59'
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$byCountry = array();
 
@@ -52,10 +54,13 @@ class GeographicInsightsReport {
 			$visits   = (int) $row['visits'];
 
 			if ( ! isset( $byCountry[ $country ] ) ) {
-				$byCountry[ $country ] = array( 'total' => 0, 'by_currency' => array() );
+				$byCountry[ $country ] = array(
+					'total'       => 0,
+					'by_currency' => array(),
+				);
 			}
 
-			$byCountry[ $country ]['total']                              += $visits;
+			$byCountry[ $country ]['total']                          += $visits;
 			$byCountry[ $country ]['by_currency'][ $currency ?? '—' ] = ( $byCountry[ $country ]['by_currency'][ $currency ?? '—' ] ?? 0 ) + $visits;
 		}
 
@@ -68,11 +73,11 @@ class GeographicInsightsReport {
 			$expected    = CountryCurrencyMap::currencyForCountry( $country );
 
 			$result[ $country ] = array(
-				'visits'              => $data['total'],
-				'top_currency'        => '—' === $topCurrency ? null : $topCurrency,
-				'top_currency_share'  => $data['total'] > 0 ? round( ( $topCount / $data['total'] ) * 100, 1 ) : 0.0,
-				'expected_currency'   => $expected,
-				'mismatch'            => null !== $expected && $expected !== $topCurrency,
+				'visits'             => $data['total'],
+				'top_currency'       => '—' === $topCurrency ? null : $topCurrency,
+				'top_currency_share' => $data['total'] > 0 ? round( ( $topCount / $data['total'] ) * 100, 1 ) : 0.0,
+				'expected_currency'  => $expected,
+				'mismatch'           => null !== $expected && $expected !== $topCurrency,
 			);
 		}
 
@@ -87,17 +92,19 @@ class GeographicInsightsReport {
 	public function mostSwitchedPairs( string $fromDate, string $toDate, int $limit = 10 ): array {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$this->table()} is this repository's own table name, never user data.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT from_currency, to_currency, COUNT(*) AS switch_count FROM {$this->table()}
 				WHERE event_type = 'switch' AND created_at BETWEEN %s AND %s
-				GROUP BY from_currency, to_currency ORDER BY switch_count DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				GROUP BY from_currency, to_currency ORDER BY switch_count DESC LIMIT %d",
 				$fromDate . ' 00:00:00',
 				$toDate . ' 23:59:59',
 				$limit
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array_map(
 			static fn ( array $row ) => array(
@@ -129,21 +136,27 @@ class GeographicInsightsReport {
 		// UTC, silently widening or narrowing the "abandoned" window.
 		$cutoff = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - ( $minAgeHours * HOUR_IN_SECONDS ) );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$this->table()} is this repository's own table name, never user data.
 		$switches = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT DISTINCT session_id FROM {$this->table()}
-				WHERE event_type = 'switch' AND session_id IS NOT NULL AND created_at BETWEEN %s AND %s AND created_at <= %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				WHERE event_type = 'switch' AND session_id IS NOT NULL AND created_at BETWEEN %s AND %s AND created_at <= %s",
 				$fromDate . ' 00:00:00',
 				$toDate . ' 23:59:59',
 				$cutoff
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$sessionIds = array_map( static fn ( $row ) => (string) $row['session_id'], $switches ?: array() );
 
 		if ( empty( $sessionIds ) ) {
-			return array( 'total_switches' => 0, 'abandoned' => 0, 'abandonment_rate' => 0.0 );
+			return array(
+				'total_switches'   => 0,
+				'abandoned'        => 0,
+				'abandonment_rate' => 0.0,
+			);
 		}
 
 		$convertedSessions = Hpos::is_enabled() ? $this->sessionsWithOrdersHpos( $sessionIds ) : $this->sessionsWithOrdersLegacy( $sessionIds );
@@ -169,7 +182,7 @@ class GeographicInsightsReport {
 
 		$rows = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT meta_value FROM {$wpdb->prefix}wc_orders_meta WHERE meta_key = '_wcmcs_session_id' AND meta_value IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT DISTINCT meta_value FROM {$wpdb->prefix}wc_orders_meta WHERE meta_key = '_wcmcs_session_id' AND meta_value IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- {$placeholders} is a dynamically-built %s-per-session-id list, a genuine placeholder set the sniff can't statically verify
 				$sessionIds
 			)
 		);
@@ -188,7 +201,7 @@ class GeographicInsightsReport {
 
 		$rows = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_wcmcs_session_id' AND meta_value IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_wcmcs_session_id' AND meta_value IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- see sessionsWithOrdersHpos() above, same reasoning
 				$sessionIds
 			)
 		);

@@ -44,11 +44,11 @@ class PluginConflictDetector {
 	 * @var array<string, callable(): bool>
 	 */
 	private const CURRENCY_PLUGINS = array(
-		'WOOCS – WooCommerce Currency Switcher'          => array( self::class, 'hasWoocs' ),
-		'Currency Switcher for WooCommerce (Aelia)'      => array( self::class, 'hasAelia' ),
+		'WOOCS – WooCommerce Currency Switcher'           => array( self::class, 'hasWoocs' ),
+		'Currency Switcher for WooCommerce (Aelia)'       => array( self::class, 'hasAelia' ),
 		'Multi Currency for WooCommerce (VillaTheme/FOX)' => array( self::class, 'hasVillaTheme' ),
-		'CURCY – Multi Currency for WooCommerce'         => array( self::class, 'hasCurcy' ),
-		'YayCurrency'                                    => array( self::class, 'hasYayCurrency' ),
+		'CURCY – Multi Currency for WooCommerce'          => array( self::class, 'hasCurcy' ),
+		'YayCurrency'                                     => array( self::class, 'hasYayCurrency' ),
 	);
 
 	/**
@@ -80,7 +80,7 @@ class PluginConflictDetector {
 	}
 
 	public static function maybe_show_notices(): void {
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- a WooCommerce-defined capability, not WordPress core; WPCS doesn't know WooCommerce's own capability list.
 			return;
 		}
 

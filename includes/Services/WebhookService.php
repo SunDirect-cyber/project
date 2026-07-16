@@ -87,7 +87,10 @@ class WebhookService {
 			);
 
 			if ( is_wp_error( $response ) ) {
-				return array( 'success' => false, 'message' => $response->get_error_message() );
+				return array(
+					'success' => false,
+					'message' => $response->get_error_message(),
+				);
 			}
 
 			$status = (int) wp_remote_retrieve_response_code( $response );
@@ -98,7 +101,10 @@ class WebhookService {
 			);
 		}
 
-		return array( 'success' => false, 'message' => __( 'Webhook not found.', 'wc-multicurrency-switcher' ) );
+		return array(
+			'success' => false,
+			'message' => __( 'Webhook not found.', 'wc-multicurrency-switcher' ),
+		);
 	}
 
 	/**

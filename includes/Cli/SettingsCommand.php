@@ -41,7 +41,7 @@ class SettingsCommand {
 		}
 
 		$data    = SettingsPortability::export( ! empty( $assoc_args['include-api-keys'] ) );
-		$written = file_put_contents( $file, wp_json_encode( $data, JSON_PRETTY_PRINT ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		$written = file_put_contents( $file, wp_json_encode( $data, JSON_PRETTY_PRINT ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- WP-CLI context: runs as the system user with direct filesystem access, not a web request; WP_Filesystem's credential-prompt flow doesn't apply here.
 
 		if ( false === $written ) {
 			\WP_CLI::error( "Could not write to {$file}." );

@@ -39,12 +39,12 @@ class CurrencyStatsAggregationService {
 			$table = $wpdb->prefix . 'wcmcs_currency_stats_daily';
 			$now   = current_time( 'mysql' );
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$table} is a hardcoded table name, never user data.
 			$wpdb->query(
 				$wpdb->prepare(
 					"INSERT INTO {$table} (stat_date, currency, order_count, revenue, revenue_base_currency, created_at, updated_at)
 					VALUES (%s, %s, %d, %f, %f, %s, %s)
-					ON DUPLICATE KEY UPDATE order_count = VALUES(order_count), revenue = VALUES(revenue), revenue_base_currency = VALUES(revenue_base_currency), updated_at = VALUES(updated_at)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					ON DUPLICATE KEY UPDATE order_count = VALUES(order_count), revenue = VALUES(revenue), revenue_base_currency = VALUES(revenue_base_currency), updated_at = VALUES(updated_at)",
 					$date,
 					$currency,
 					(int) $row['order_count'],
@@ -54,6 +54,7 @@ class CurrencyStatsAggregationService {
 					$now
 				)
 			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
 	}
 
@@ -80,6 +81,7 @@ class CurrencyStatsAggregationService {
 
 		$statusPlaceholders = implode( ',', array_fill( 0, count( self::PAID_STATUSES ), '%s' ) );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- {$wpdb->prefix}/{$statusPlaceholders} are table names and a %s-per-status placeholder list, never user data; array_merge()'s element count (which the sniff can't statically resolve) is exactly count(self::PAID_STATUSES) status placeholders + 1 date placeholder.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT o.currency AS currency,
@@ -89,11 +91,12 @@ class CurrencyStatsAggregationService {
 				FROM {$wpdb->prefix}wc_orders o
 				LEFT JOIN {$wpdb->prefix}wc_orders_meta m ON m.order_id = o.id AND m.meta_key = '_wcmcs_base_currency_total'
 				WHERE o.status IN ({$statusPlaceholders}) AND DATE(o.date_created_gmt) = %s
-				GROUP BY o.currency", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				GROUP BY o.currency",
 				array_merge( self::PAID_STATUSES, array( $date ) )
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		return $this->normalize( $rows );
 	}
@@ -106,6 +109,7 @@ class CurrencyStatsAggregationService {
 
 		$statusPlaceholders = implode( ',', array_fill( 0, count( self::PAID_STATUSES ), '%s' ) );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- see queryHpos() above, same reasoning.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT pm_currency.meta_value AS currency,
@@ -117,11 +121,12 @@ class CurrencyStatsAggregationService {
 				INNER JOIN {$wpdb->postmeta} pm_total ON pm_total.post_id = p.ID AND pm_total.meta_key = '_order_total'
 				LEFT JOIN {$wpdb->postmeta} pm_base ON pm_base.post_id = p.ID AND pm_base.meta_key = '_wcmcs_base_currency_total'
 				WHERE p.post_type = 'shop_order' AND p.post_status IN ({$statusPlaceholders}) AND DATE(p.post_date_gmt) = %s
-				GROUP BY pm_currency.meta_value", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				GROUP BY pm_currency.meta_value",
 				array_merge( self::PAID_STATUSES, array( $date ) )
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		return $this->normalize( $rows );
 	}

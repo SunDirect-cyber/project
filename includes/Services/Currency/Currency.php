@@ -38,11 +38,11 @@ final class Currency {
 		string $decimalSeparator
 	) {
 		if ( 3 !== strlen( $code ) ) {
-			throw new \InvalidArgumentException( sprintf( 'Currency code must be a 3-letter ISO 4217 code, got "%s".', $code ) );
+			throw new \InvalidArgumentException( sprintf( 'Currency code must be a 3-letter ISO 4217 code, got "%s".', $code ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- internal validation error, a programmer bug never rendered to a browser.
 		}
 
 		if ( ! in_array( $symbolPosition, array( self::SYMBOL_BEFORE, self::SYMBOL_AFTER ), true ) ) {
-			throw new \InvalidArgumentException( sprintf( 'Invalid symbol position "%s".', $symbolPosition ) );
+			throw new \InvalidArgumentException( sprintf( 'Invalid symbol position "%s".', $symbolPosition ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- internal validation error, a programmer bug never rendered to a browser.
 		}
 
 		if ( $decimals < 0 ) {
@@ -51,11 +51,11 @@ final class Currency {
 
 		$this->code              = strtoupper( $code );
 		$this->name              = $name;
-		$this->symbol             = $symbol;
-		$this->decimals           = $decimals;
-		$this->symbolPosition     = $symbolPosition;
-		$this->thousandSeparator  = $thousandSeparator;
-		$this->decimalSeparator   = $decimalSeparator;
+		$this->symbol            = $symbol;
+		$this->decimals          = $decimals;
+		$this->symbolPosition    = $symbolPosition;
+		$this->thousandSeparator = $thousandSeparator;
+		$this->decimalSeparator  = $decimalSeparator;
 	}
 
 	public function code(): string {

@@ -14,9 +14,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 class FlagRegistry {
 
 	private const CURRENCIES_WITH_FLAGS = array(
-		'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'INR', 'BRL', 'MXN', 'RUB', 'TRY',
-		'CHF', 'SEK', 'NOK', 'DKK', 'PLN', 'CAD', 'AUD', 'NZD', 'THB', 'VND',
-		'AED', 'ILS', 'NGN', 'IDR', 'KRW', 'ZAR',
+		'USD',
+		'EUR',
+		'GBP',
+		'JPY',
+		'CNY',
+		'INR',
+		'BRL',
+		'MXN',
+		'RUB',
+		'TRY',
+		'CHF',
+		'SEK',
+		'NOK',
+		'DKK',
+		'PLN',
+		'CAD',
+		'AUD',
+		'NZD',
+		'THB',
+		'VND',
+		'AED',
+		'ILS',
+		'NGN',
+		'IDR',
+		'KRW',
+		'ZAR',
 	);
 
 	public static function hasFlag( string $currencyCode ): bool {

@@ -49,7 +49,12 @@ class RateValidatorTest extends WcmcsUnitTestCase {
 	}
 
 	public function test_a_rate_outside_configured_bounds_is_rejected(): void {
-		$validator = $this->makeValidator( array( 'min' => 0.80, 'max' => 1.00 ) );
+		$validator = $this->makeValidator(
+			array(
+				'min' => 0.80,
+				'max' => 1.00,
+			)
+		);
 
 		$tooLow  = $validator->validate( 'USD', 'EUR', 0.50, null );
 		$tooHigh = $validator->validate( 'USD', 'EUR', 1.50, null );

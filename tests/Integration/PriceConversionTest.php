@@ -53,7 +53,7 @@ class PriceConversionTest extends \WC_Unit_Test_Case {
 	}
 
 	public function test_a_variable_products_price_range_is_converted(): void {
-		$product = \WC_Helper_Product::create_variation_product();
+		$product                   = \WC_Helper_Product::create_variation_product();
 		$this->createdProductIds[] = $product->get_id();
 
 		foreach ( $product->get_children() as $variationId ) {

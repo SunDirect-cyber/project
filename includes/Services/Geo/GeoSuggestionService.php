@@ -58,7 +58,10 @@ class GeoSuggestionService {
 			return null;
 		}
 
-		return array( 'country' => $result['country'], 'currency' => $result['currency'] );
+		return array(
+			'country'  => $result['country'],
+			'currency' => $result['currency'],
+		);
 	}
 
 	public function hasDismissed(): bool {

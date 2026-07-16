@@ -32,7 +32,7 @@ class CurrencyCommand {
 	public function list_( array $args, array $assoc_args ): void {
 		/** @var \WCMCS\Services\CurrencyService $currencyService */
 		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
-		$enabled          = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
+		$enabled         = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
 
 		$rows = array();
 

@@ -44,8 +44,8 @@ class StoreApiController {
 
 	private const NAMESPACE_ = 'wcmcs/v1/store';
 
-	private const CONVERT_RATE_LIMIT_WINDOW  = 2; // seconds between requests, per IP
-	private const CONVERT_RATE_LIMIT_ACTION  = 'wcmcs_store_api_convert';
+	private const CONVERT_RATE_LIMIT_WINDOW = 2; // seconds between requests, per IP
+	private const CONVERT_RATE_LIMIT_ACTION = 'wcmcs_store_api_convert';
 
 	public static function register(): void {
 		add_action( 'rest_api_init', array( self::class, 'register_routes' ) );
@@ -82,8 +82,14 @@ class StoreApiController {
 				'permission_callback' => '__return_true',
 				'args'                => array(
 					'amount' => array( 'required' => true ),
-					'to'     => array( 'required' => true, 'type' => 'string' ),
-					'from'   => array( 'required' => false, 'type' => 'string' ),
+					'to'     => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'from'   => array(
+						'required' => false,
+						'type'     => 'string',
+					),
 				),
 			)
 		);
@@ -128,7 +134,7 @@ class StoreApiController {
 	public static function get_currencies(): \WP_REST_Response {
 		/** @var \WCMCS\Services\CurrencyService $currencyService */
 		$currencyService = Plugin::instance()->container()->get( 'currency_service' );
-		$base             = $currencyService->baseCurrency()->code();
+		$base            = $currencyService->baseCurrency()->code();
 
 		$data = array();
 
@@ -158,7 +164,7 @@ class StoreApiController {
 		/** @var \WCMCS\Services\PriceConversionService $priceConversion */
 		$priceConversion = $container->get( 'price_conversion_service' );
 
-		$base = $currencyService->baseCurrency()->code();
+		$base  = $currencyService->baseCurrency()->code();
 		$rates = array();
 
 		foreach ( $currencyService->enabledCurrencyCodes() as $code ) {
@@ -174,7 +180,13 @@ class StoreApiController {
 			$rates[ $code ] = $priceConversion->getEffectiveRate( $base, $code );
 		}
 
-		return new \WP_REST_Response( array( 'base' => $base, 'rates' => $rates ), 200 );
+		return new \WP_REST_Response(
+			array(
+				'base'  => $base,
+				'rates' => $rates,
+			),
+			200
+		);
 	}
 
 	public static function convert( \WP_REST_Request $request ) {
@@ -226,8 +238,8 @@ class StoreApiController {
 			return new \WP_REST_Response( array( 'message' => __( 'No exchange rate is currently available for that pair.', 'wc-multicurrency-switcher' ) ), 503 );
 		}
 
-		$currency = $currencyService->get( $to );
-		$decimals = null !== $currency ? $currency->decimals() : 2;
+		$currency  = $currencyService->get( $to );
+		$decimals  = null !== $currency ? $currency->decimals() : 2;
 		$converted = round( $converted, $decimals );
 
 		return new \WP_REST_Response(

@@ -43,7 +43,10 @@ abstract class AbstractApiRateProvider implements RateProviderInterface {
 		if ( $status < 200 || $status >= 300 ) {
 			$this->logger->warning(
 				sprintf( '[%s] unexpected HTTP status %d', $this->getSourceName(), $status ),
-				array( 'url' => $this->redact( $url ), 'body' => substr( wp_remote_retrieve_body( $response ), 0, 500 ) )
+				array(
+					'url'  => $this->redact( $url ),
+					'body' => substr( wp_remote_retrieve_body( $response ), 0, 500 ),
+				)
 			);
 			return null;
 		}

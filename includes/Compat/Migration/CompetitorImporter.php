@@ -87,7 +87,12 @@ class CompetitorImporter {
 			case self::PLUGIN_AELIA:
 				return self::previewAelia();
 			default:
-				return array( 'plugin' => $pluginKey, 'currencies' => array(), 'default_currency' => null, 'notes' => array( 'Unknown plugin.' ) );
+				return array(
+					'plugin'           => $pluginKey,
+					'currencies'       => array(),
+					'default_currency' => null,
+					'notes'            => array( 'Unknown plugin.' ),
+				);
 		}
 	}
 
@@ -103,7 +108,10 @@ class CompetitorImporter {
 		$preview = self::preview( $pluginKey );
 
 		if ( empty( $preview['currencies'] ) ) {
-			return array( 'imported_count' => 0, 'currencies' => array() );
+			return array(
+				'imported_count' => 0,
+				'currencies'     => array(),
+			);
 		}
 
 		$existing = array_map( 'strtoupper', (array) get_option( 'wcmcs_enabled_currencies', array() ) );
@@ -111,7 +119,10 @@ class CompetitorImporter {
 
 		update_option( 'wcmcs_enabled_currencies', $merged );
 
-		return array( 'imported_count' => count( $preview['currencies'] ), 'currencies' => $preview['currencies'] );
+		return array(
+			'imported_count' => count( $preview['currencies'] ),
+			'currencies'     => $preview['currencies'],
+		);
 	}
 
 	/**
@@ -165,7 +176,12 @@ class CompetitorImporter {
 		}
 
 		if ( ! is_array( $raw ) ) {
-			return array( 'plugin' => self::PLUGIN_WOOCS, 'currencies' => array(), 'default_currency' => null, 'notes' => array() );
+			return array(
+				'plugin'           => self::PLUGIN_WOOCS,
+				'currencies'       => array(),
+				'default_currency' => null,
+				'notes'            => array(),
+			);
 		}
 
 		$codes   = self::validateCodes( array_keys( $raw ) );
@@ -182,10 +198,10 @@ class CompetitorImporter {
 		}
 
 		return array(
-			'plugin'            => self::PLUGIN_WOOCS,
-			'currencies'        => $codes,
-			'default_currency'  => $default,
-			'notes'             => array(),
+			'plugin'           => self::PLUGIN_WOOCS,
+			'currencies'       => $codes,
+			'default_currency' => $default,
+			'notes'            => array(),
 		);
 	}
 
@@ -202,14 +218,19 @@ class CompetitorImporter {
 		}
 
 		if ( ! is_array( $raw ) ) {
-			return array( 'plugin' => self::PLUGIN_CURCY, 'currencies' => array(), 'default_currency' => null, 'notes' => array() );
+			return array(
+				'plugin'           => self::PLUGIN_CURCY,
+				'currencies'       => array(),
+				'default_currency' => null,
+				'notes'            => array(),
+			);
 		}
 
 		return array(
-			'plugin'            => self::PLUGIN_CURCY,
-			'currencies'        => self::validateCodes( $raw ),
-			'default_currency'  => null,
-			'notes'             => array(),
+			'plugin'           => self::PLUGIN_CURCY,
+			'currencies'       => self::validateCodes( $raw ),
+			'default_currency' => null,
+			'notes'            => array(),
 		);
 	}
 
@@ -222,7 +243,12 @@ class CompetitorImporter {
 		$settings = get_option( 'wc_aelia_currency_switcher', null );
 
 		if ( ! is_array( $settings ) ) {
-			return array( 'plugin' => self::PLUGIN_AELIA, 'currencies' => array(), 'default_currency' => null, 'notes' => array() );
+			return array(
+				'plugin'           => self::PLUGIN_AELIA,
+				'currencies'       => array(),
+				'default_currency' => null,
+				'notes'            => array(),
+			);
 		}
 
 		$raw = $settings['enabled_currencies'] ?? $settings['currencies'] ?? null;
@@ -232,14 +258,19 @@ class CompetitorImporter {
 		}
 
 		if ( ! is_array( $raw ) ) {
-			return array( 'plugin' => self::PLUGIN_AELIA, 'currencies' => array(), 'default_currency' => null, 'notes' => array() );
+			return array(
+				'plugin'           => self::PLUGIN_AELIA,
+				'currencies'       => array(),
+				'default_currency' => null,
+				'notes'            => array(),
+			);
 		}
 
 		return array(
-			'plugin'            => self::PLUGIN_AELIA,
-			'currencies'        => self::validateCodes( $raw ),
-			'default_currency'  => null,
-			'notes'             => array(),
+			'plugin'           => self::PLUGIN_AELIA,
+			'currencies'       => self::validateCodes( $raw ),
+			'default_currency' => null,
+			'notes'            => array(),
 		);
 	}
 }

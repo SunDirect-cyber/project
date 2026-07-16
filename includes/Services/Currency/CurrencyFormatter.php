@@ -16,7 +16,7 @@ class CurrencyFormatter {
 	 * @param float|int|string $amount
 	 */
 	public function format( $amount, Currency $currency, bool $withSymbol = true ): string {
-		$amount = (float) $amount;
+		$amount     = (float) $amount;
 		$isNegative = $amount < 0;
 
 		$number = number_format(

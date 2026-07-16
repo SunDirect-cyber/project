@@ -20,7 +20,7 @@ class NotificationService {
 
 	public function __construct( CurrencyStatsRepository $statsRepository, CurrencyService $currencyService ) {
 		$this->statsRepository = $statsRepository;
-		$this->currencyService  = $currencyService;
+		$this->currencyService = $currencyService;
 	}
 
 	/**
@@ -45,9 +45,9 @@ class NotificationService {
 			return;
 		}
 
-		$days  = 'weekly' === $period ? 7 : 1;
-		$from  = gmdate( 'Y-m-d', strtotime( "-{$days} days" ) );
-		$to    = gmdate( 'Y-m-d', strtotime( '-1 day' ) ); // yesterday — today isn't over yet.
+		$days   = 'weekly' === $period ? 7 : 1;
+		$from   = gmdate( 'Y-m-d', strtotime( "-{$days} days" ) );
+		$to     = gmdate( 'Y-m-d', strtotime( '-1 day' ) ); // yesterday — today isn't over yet.
 		$totals = $this->statsRepository->totalsByCurrency( $from, $to );
 
 		if ( empty( $totals ) ) {
@@ -63,7 +63,12 @@ class NotificationService {
 		);
 
 		$lines = array(
-			sprintf( __( 'Currency performance for %1$s to %2$s:', 'wc-multicurrency-switcher' ), $from, $to ),
+			sprintf(
+				/* translators: 1: range start date, 2: range end date */
+				__( 'Currency performance for %1$s to %2$s:', 'wc-multicurrency-switcher' ),
+				$from,
+				$to
+			),
 			'',
 		);
 

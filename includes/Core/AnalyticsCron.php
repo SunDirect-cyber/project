@@ -113,7 +113,12 @@ class AnalyticsCron {
 		if ( ! empty( get_option( 'wcmcs_notification_anomaly_alerts', false ) ) ) {
 			/** @var \WCMCS\Services\Analytics\NotificationService $notifications */
 			$notifications = $plugin->container()->get( 'notification_service' );
-			$notifications->sendAnomalyAlert( array( 'conversion_drops' => $drops, 'zero_sales' => $zeroSales ) );
+			$notifications->sendAnomalyAlert(
+				array(
+					'conversion_drops' => $drops,
+					'zero_sales'       => $zeroSales,
+				)
+			);
 		}
 
 		if ( $plugin->container()->has( 'webhook_service' ) ) {
@@ -121,7 +126,10 @@ class AnalyticsCron {
 			$webhooks = $plugin->container()->get( 'webhook_service' );
 			$webhooks->trigger(
 				\WCMCS\Services\WebhookService::EVENT_ANOMALY_DETECTED,
-				array( 'conversion_drops' => $drops, 'zero_sales' => $zeroSales )
+				array(
+					'conversion_drops' => $drops,
+					'zero_sales'       => $zeroSales,
+				)
 			);
 		}
 	}

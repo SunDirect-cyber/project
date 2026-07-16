@@ -26,7 +26,7 @@ class PriceConversionService {
 	private CacheService $cache;
 
 	public function __construct( RateService $rateService, PricingRuleService $pricingRules, CacheService $cache ) {
-		$this->rateService = $rateService;
+		$this->rateService  = $rateService;
 		$this->pricingRules = $pricingRules;
 		$this->cache        = $cache;
 	}
@@ -97,6 +97,6 @@ class PriceConversionService {
 	 * the very next request instead of waiting out the cache TTL.
 	 */
 	public function invalidate( string $base, string $target ): void {
-		$this->cache->delete( "effective_rate_" . strtoupper( $base ) . '_' . strtoupper( $target ) );
+		$this->cache->delete( 'effective_rate_' . strtoupper( $base ) . '_' . strtoupper( $target ) );
 	}
 }

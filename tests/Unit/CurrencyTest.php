@@ -10,15 +10,15 @@ class CurrencyTest extends WcmcsUnitTestCase {
 
 	private function make( array $overrides = array() ): Currency {
 		$defaults = array(
-			'code'               => 'usd',
-			'name'               => 'US Dollar',
-			'symbol'             => '$',
-			'decimals'           => 2,
-			'symbolPosition'     => Currency::SYMBOL_BEFORE,
-			'thousandSeparator'  => ',',
-			'decimalSeparator'   => '.',
+			'code'              => 'usd',
+			'name'              => 'US Dollar',
+			'symbol'            => '$',
+			'decimals'          => 2,
+			'symbolPosition'    => Currency::SYMBOL_BEFORE,
+			'thousandSeparator' => ',',
+			'decimalSeparator'  => '.',
 		);
-		$args = array_merge( $defaults, $overrides );
+		$args     = array_merge( $defaults, $overrides );
 
 		return new Currency(
 			$args['code'],
@@ -60,13 +60,23 @@ class CurrencyTest extends WcmcsUnitTestCase {
 	}
 
 	public function test_accepts_zero_decimals_for_currencies_like_jpy(): void {
-		$jpy = $this->make( array( 'code' => 'JPY', 'decimals' => 0 ) );
+		$jpy = $this->make(
+			array(
+				'code'     => 'JPY',
+				'decimals' => 0,
+			)
+		);
 
 		$this->assertSame( 0, $jpy->decimals() );
 	}
 
 	public function test_accepts_three_decimals_for_currencies_like_bhd(): void {
-		$bhd = $this->make( array( 'code' => 'BHD', 'decimals' => 3 ) );
+		$bhd = $this->make(
+			array(
+				'code'     => 'BHD',
+				'decimals' => 3,
+			)
+		);
 
 		$this->assertSame( 3, $bhd->decimals() );
 	}
@@ -80,8 +90,18 @@ class CurrencyTest extends WcmcsUnitTestCase {
 	}
 
 	public function test_equals_compares_by_currency_code_not_identity(): void {
-		$a = $this->make( array( 'code' => 'EUR', 'name' => 'Euro' ) );
-		$b = $this->make( array( 'code' => 'EUR', 'name' => 'A different name entirely' ) );
+		$a = $this->make(
+			array(
+				'code' => 'EUR',
+				'name' => 'Euro',
+			)
+		);
+		$b = $this->make(
+			array(
+				'code' => 'EUR',
+				'name' => 'A different name entirely',
+			)
+		);
 		$c = $this->make( array( 'code' => 'GBP' ) );
 
 		$this->assertTrue( $a->equals( $b ) );
@@ -89,7 +109,13 @@ class CurrencyTest extends WcmcsUnitTestCase {
 	}
 
 	public function test_to_array_contains_every_field(): void {
-		$currency = $this->make( array( 'code' => 'EUR', 'name' => 'Euro', 'symbol' => '€' ) );
+		$currency = $this->make(
+			array(
+				'code'   => 'EUR',
+				'name'   => 'Euro',
+				'symbol' => '€',
+			)
+		);
 
 		$this->assertSame(
 			array(

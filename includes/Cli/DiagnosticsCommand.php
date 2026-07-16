@@ -76,25 +76,34 @@ class DiagnosticsCommand {
 		$toDate      = gmdate( 'Y-m-d' );
 		$fromDate    = gmdate( 'Y-m-d', strtotime( "-{$days} days" ) );
 
-		$this->time( 'Daily stats aggregation (' . $days . ' days)', static function () use ( $aggregation, $fromDate, $toDate ) {
-			$aggregation->aggregateRange( $fromDate, $toDate );
-		} );
+		$this->time(
+			'Daily stats aggregation (' . $days . ' days)',
+			static function () use ( $aggregation, $fromDate, $toDate ) {
+				$aggregation->aggregateRange( $fromDate, $toDate );
+			}
+		);
 
 		// Reporting queries — these read the small pre-aggregated tables,
 		// so their cost should stay flat regardless of order count; a slow
 		// result here points at a missing index, not order volume.
 		/** @var RateRepository $rateRepository */
 		$rateRepository = $container->get( 'rate_repository' );
-		$this->time( 'Rate history query (30 rows)', static function () use ( $rateRepository ) {
-			$rateRepository->history( 'USD', 'EUR', 30 );
-		} );
+		$this->time(
+			'Rate history query (30 rows)',
+			static function () use ( $rateRepository ) {
+				$rateRepository->history( 'USD', 'EUR', 30 );
+			}
+		);
 
 		/** @var GeographicInsightsReport $geo */
 		$geo = $container->get( 'geographic_insights_report' );
-		$this->time( 'Geographic insights (' . $days . ' days)', static function () use ( $geo, $fromDate, $toDate ) {
-			$geo->countryVsCurrency( $fromDate, $toDate );
-			$geo->mostSwitchedPairs( $fromDate, $toDate );
-		} );
+		$this->time(
+			'Geographic insights (' . $days . ' days)',
+			static function () use ( $geo, $fromDate, $toDate ) {
+				$geo->countryVsCurrency( $fromDate, $toDate );
+				$geo->mostSwitchedPairs( $fromDate, $toDate );
+			}
+		);
 
 		\WP_CLI::success( 'Benchmark complete.' );
 	}
@@ -136,7 +145,7 @@ class DiagnosticsCommand {
 			\WP_CLI::error( 'The cURL PHP extension is required for this command.' );
 		}
 
-		$url         = untrailingslashit( (string) $args[0] );
+		$url          = untrailingslashit( (string) $args[0] );
 		$requestCount = max( 1, (int) ( $assoc_args['requests'] ?? 50 ) );
 		$currency     = strtoupper( (string) ( $assoc_args['currency'] ?? 'EUR' ) );
 		$ajaxUrl      = $url . '/wp-admin/admin-ajax.php';
@@ -148,6 +157,7 @@ class DiagnosticsCommand {
 
 		\WP_CLI::log( sprintf( 'Firing %d concurrent switch requests at %s ...', $requestCount, $ajaxUrl ) );
 
+		// phpcs:disable WordPress.WP.AlternativeFunctions -- deliberate: this WP-CLI diagnostic exists specifically to fire genuinely overlapping HTTP connections at once, which wp_remote_*() cannot do (it's always synchronous, one request at a time); curl_multi is the only way to actually exercise this.
 		$multiHandle = curl_multi_init();
 		$handles     = array();
 
@@ -182,8 +192,8 @@ class DiagnosticsCommand {
 
 		$elapsedMs = round( ( microtime( true ) - $startedAt ) * 1000, 1 );
 
-		$succeeded = 0;
-		$failed    = 0;
+		$succeeded  = 0;
+		$failed     = 0;
 		$httpErrors = 0;
 
 		foreach ( $handles as $ch ) {
@@ -207,6 +217,7 @@ class DiagnosticsCommand {
 		}
 
 		curl_multi_close( $multiHandle );
+		// phpcs:enable WordPress.WP.AlternativeFunctions
 
 		\WP_CLI::log( sprintf( 'Total time: %s ms for %d concurrent requests', $elapsedMs, $requestCount ) );
 		\WP_CLI::log( sprintf( 'Succeeded: %d, Application errors: %d, HTTP errors: %d', $succeeded, $failed, $httpErrors ) );
@@ -221,7 +232,7 @@ class DiagnosticsCommand {
 	private function currentOrderCount(): int {
 		if ( Hpos::is_enabled() ) {
 			global $wpdb;
-			return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wc_orders WHERE type = 'shop_order'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wc_orders WHERE type = 'shop_order'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name only, not user data
 		}
 
 		$counts = wp_count_posts( 'shop_order' );
@@ -237,7 +248,7 @@ class DiagnosticsCommand {
 
 		$operation();
 
-		$elapsedMs = round( ( microtime( true ) - $startedAt ) * 1000, 1 );
+		$elapsedMs  = round( ( microtime( true ) - $startedAt ) * 1000, 1 );
 		$queryCount = $wpdb->num_queries - $queriesBefore;
 
 		\WP_CLI::log( sprintf( '  %-40s %8s ms  (%d queries)', $label, $elapsedMs, $queryCount ) );

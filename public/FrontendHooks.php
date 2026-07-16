@@ -164,7 +164,7 @@ class FrontendHooks {
 	 * Block themes get the same result by inserting the Currency Switcher
 	 * block directly into a Navigation/Header template part instead.
 	 *
-	 * @param string   $items
+	 * @param string    $items
 	 * @param \stdClass $args
 	 */
 	public static function maybe_inject_into_menu( $items, $args ): string {

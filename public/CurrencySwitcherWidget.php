@@ -63,12 +63,12 @@ class CurrencySwitcherWidget extends \WP_Widget {
 	 * @param array<string, mixed> $instance
 	 */
 	public function form( $instance ) {
-		$title      = $instance['title'] ?? '';
-		$style      = $instance['style'] ?? CurrencySwitcherRenderer::defaultStyle();
-		$show_flag  = ! empty( $instance['show_flag'] );
-		$show_code  = ! isset( $instance['show_code'] ) || ! empty( $instance['show_code'] );
+		$title       = $instance['title'] ?? '';
+		$style       = $instance['style'] ?? CurrencySwitcherRenderer::defaultStyle();
+		$show_flag   = ! empty( $instance['show_flag'] );
+		$show_code   = ! isset( $instance['show_code'] ) || ! empty( $instance['show_code'] );
 		$show_symbol = ! empty( $instance['show_symbol'] );
-		$show_name  = ! empty( $instance['show_name'] );
+		$show_name   = ! empty( $instance['show_name'] );
 		?>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wc-multicurrency-switcher' ); ?></label>

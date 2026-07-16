@@ -41,15 +41,37 @@ class GatewayCurrencyMatrix {
 	public const WILDCARD = '*';
 
 	private const BUILTIN_SUPPORT = array(
-		'stripe'        => self::WILDCARD,
-		'paypal'        => array(
-			'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK', 'EUR', 'HKD', 'HUF',
-			'ILS', 'JPY', 'MYR', 'MXN', 'TWD', 'NZD', 'NOK', 'PHP', 'PLN',
-			'GBP', 'RUB', 'SGD', 'SEK', 'CHF', 'THB', 'USD',
+		'stripe' => self::WILDCARD,
+		'paypal' => array(
+			'AUD',
+			'BRL',
+			'CAD',
+			'CNY',
+			'CZK',
+			'DKK',
+			'EUR',
+			'HKD',
+			'HUF',
+			'ILS',
+			'JPY',
+			'MYR',
+			'MXN',
+			'TWD',
+			'NZD',
+			'NOK',
+			'PHP',
+			'PLN',
+			'GBP',
+			'RUB',
+			'SGD',
+			'SEK',
+			'CHF',
+			'THB',
+			'USD',
 		),
-		'bacs'          => self::WILDCARD,
-		'cheque'        => self::WILDCARD,
-		'cod'           => self::WILDCARD,
+		'bacs'   => self::WILDCARD,
+		'cheque' => self::WILDCARD,
+		'cod'    => self::WILDCARD,
 	);
 
 	/**

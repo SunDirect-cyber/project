@@ -24,7 +24,7 @@
 $testsDir = getenv( 'WP_TESTS_DIR' ) ?: '/tmp/wordpress-tests-lib';
 
 if ( ! file_exists( $testsDir . '/includes/functions.php' ) ) {
-	echo "Could not find the WordPress test suite at \"{$testsDir}/includes/functions.php\".\n";
+	echo "Could not find the WordPress test suite at \"{$testsDir}/includes/functions.php\".\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CLI test-runner output, never rendered to a browser.
 	echo "Run bin/install-wp-tests.sh first (see docs/testing.md) or set WP_TESTS_DIR.\n";
 	exit( 1 );
 }

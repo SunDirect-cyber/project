@@ -19,7 +19,11 @@ class CurrencyOverrideService {
 	private const OPTION = 'wcmcs_currency_format_overrides';
 
 	private const OVERRIDABLE_FIELDS = array(
-		'symbol', 'decimals', 'symbol_position', 'thousand_separator', 'decimal_separator',
+		'symbol',
+		'decimals',
+		'symbol_position',
+		'thousand_separator',
+		'decimal_separator',
 	);
 
 	public static function register(): void {

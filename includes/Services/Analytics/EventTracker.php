@@ -73,8 +73,8 @@ class EventTracker {
 		$this->insert(
 			'country_visit',
 			array(
-				'country'      => strtoupper( $country ),
-				'to_currency'  => $resolvedCurrency ? strtoupper( $resolvedCurrency ) : null,
+				'country'     => strtoupper( $country ),
+				'to_currency' => $resolvedCurrency ? strtoupper( $resolvedCurrency ) : null,
 			)
 		);
 	}
