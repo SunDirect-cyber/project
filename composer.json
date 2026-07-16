@@ -16,5 +16,19 @@
             "WCMCS\\Api\\": "includes/Api/",
             "WCMCS\\Compat\\": "includes/Compat/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WCMCS\\Tests\\Unit\\": "tests/Unit/",
+            "WCMCS\\Tests\\Integration\\": "tests/Integration/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:coverage": "phpunit --coverage-text",
+        "test:integration": "phpunit -c phpunit.integration.xml.dist"
     }
 }

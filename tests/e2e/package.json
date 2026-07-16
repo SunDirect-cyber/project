@@ -1,0 +1,13 @@
+{
+  "name": "wcmcs-e2e-tests",
+  "private": true,
+  "description": "Playwright end-to-end tests for the WooCommerce Multi-Currency Switcher plugin. Requires a live (or staging) WooCommerce store with this plugin active — see docs/testing.md.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}

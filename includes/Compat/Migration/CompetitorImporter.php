@@ -119,10 +119,17 @@ class CompetitorImporter {
 	 *                   codes this plugin actually knows about.
 	 */
 	private static function validateCodes( array $rawCodes ): array {
+		// The currency_repository service is always registered by the
+		// time this plugin is actually running (see Plugin::run()) — if
+		// it's somehow unavailable, that's a broken-boot state, not a
+		// reason to fall back to accepting any 3-letter string as a real
+		// currency code. Fail closed, not open.
+		if ( ! \WCMCS\Core\Plugin::instance()->container()->has( 'currency_repository' ) ) {
+			return array();
+		}
+
 		/** @var \WCMCS\Services\Currency\CurrencyRepository $repository */
-		$repository = \WCMCS\Core\Plugin::instance()->container()->has( 'currency_repository' )
-			? \WCMCS\Core\Plugin::instance()->container()->get( 'currency_repository' )
-			: null;
+		$repository = \WCMCS\Core\Plugin::instance()->container()->get( 'currency_repository' );
 
 		$valid = array();
 
@@ -133,11 +140,7 @@ class CompetitorImporter {
 
 			$code = strtoupper( trim( $code ) );
 
-			if ( ! preg_match( '/^[A-Z]{3}$/', $code ) ) {
-				continue;
-			}
-
-			if ( null !== $repository && ! $repository->exists( $code ) ) {
+			if ( ! preg_match( '/^[A-Z]{3}$/', $code ) || ! $repository->exists( $code ) ) {
 				continue;
 			}
 
