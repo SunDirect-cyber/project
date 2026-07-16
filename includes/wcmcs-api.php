@@ -1,4 +1,5 @@
 <?php
+declare( strict_types=1 );
 /**
  * Public PHP API — the "simple, memorable" static entry point other
  * plugins or a theme's functions.php can use without digging into this

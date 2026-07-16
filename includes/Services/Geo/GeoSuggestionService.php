@@ -1,4 +1,6 @@
 <?php
+declare( strict_types=1 );
+
 namespace WCMCS\Services\Geo;
 
 use WCMCS\Services\CurrencyPersistenceService;

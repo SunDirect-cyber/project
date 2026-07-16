@@ -1,4 +1,5 @@
 <?php
+declare( strict_types=1 );
 /**
  * Fires only when the plugin is deleted from the Plugins screen (not on
  * simple deactivation), and only when WP_UNINSTALL_PLUGIN is defined,

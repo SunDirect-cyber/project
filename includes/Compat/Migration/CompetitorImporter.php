@@ -1,4 +1,6 @@
 <?php
+declare( strict_types=1 );
+
 namespace WCMCS\Compat\Migration;
 
 if ( ! defined( 'ABSPATH' ) ) {

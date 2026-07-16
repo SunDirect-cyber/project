@@ -1,4 +1,6 @@
 <?php
+declare( strict_types=1 );
+
 namespace WCMCS\Services\ExchangeRate\Providers;
 
 use WCMCS\Core\EncryptionService;

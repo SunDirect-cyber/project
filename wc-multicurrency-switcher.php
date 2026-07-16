@@ -1,4 +1,5 @@
 <?php
+declare( strict_types=1 );
 /**
  * Plugin Name: WooCommerce Multi-Currency Switcher
  * Plugin URI:  https://example.com/wc-multicurrency-switcher
